@@ -25,6 +25,37 @@
 
 ## GitHub
 
+### ブランチ作成ルール
+
+#### 命名規則
+
+```
+<type>/<issue番号>-<簡潔な説明>
+```
+
+#### typeの種類
+
+- `feature/`: 新機能追加
+- `fix/`: バグ修正
+- `docs/`: ドキュメント更新
+- `refactor/`: リファクタリング
+- `test/`: テスト追加・修正
+- `chore/`: その他（設定変更、依存関係更新など）
+
+#### 例
+
+- `feature/12-add-login-screen`
+- `fix/45-card-display-bug`
+- `docs/8-update-readme`
+- `refactor/23-extract-game-logic`
+
+#### ルール
+
+- 説明部分はケバブケース（小文字、ハイフン区切り）を使用する
+- Issue番号がない場合は省略可: `feature/add-new-animation`
+- 短く具体的に記述する（長くても30文字程度）
+- 日本語は使用しない（英語のみ）
+
 ### Issue登録ルール
 
 Issueを登録する際は以下のルールに従うこと。
