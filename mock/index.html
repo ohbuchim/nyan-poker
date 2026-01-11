@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>にゃんポーカー - モック</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ===================== -->
+  <!-- Title Screen -->
+  <!-- ===================== -->
+  <div id="title-screen" class="screen active">
+    <div class="title-container">
+      <div class="title-logo">
+        <h1>にゃんポーカー</h1>
+      </div>
+      <p class="title-subtitle">猫カードで役を揃えるポーカーゲーム</p>
+
+      <div class="title-cats">
+        <div class="title-cat-card" style="--rotation: -12deg">
+          <img src="../images/image_016.jpg" alt="三毛の長毛猫">
+        </div>
+        <div class="title-cat-card" style="--rotation: -4deg">
+          <img src="../images/image_028.jpg" alt="サビの短毛猫">
+        </div>
+        <div class="title-cat-card" style="--rotation: 4deg">
+          <img src="../images/image_073.jpg" alt="黒猫の長毛猫">
+        </div>
+        <div class="title-cat-card" style="--rotation: 12deg">
+          <img src="../images/image_023.jpg" alt="白猫の長毛猫">
+        </div>
+      </div>
+
+      <div class="title-menu">
+        <button class="btn btn-primary" onclick="startSoloGame()">ひとりで遊ぶ</button>
+        <button class="btn btn-secondary" onclick="startBattleGame()">対戦モード</button>
+      </div>
+
+      <div class="title-footer">
+        <button class="btn-footer" onclick="showRulesModal()" aria-label="遊び方を見る">
+          <span class="btn-footer-icon">?</span>
+          <span class="btn-footer-label">遊び方</span>
+        </button>
+        <button class="btn-footer" onclick="showStatsModal()" aria-label="戦績を見る">
+          <span class="btn-footer-icon">📊</span>
+          <span class="btn-footer-label">戦績</span>
+        </button>
+        <button class="btn-footer" onclick="showSettingsModal()" aria-label="設定を開く">
+          <span class="btn-footer-icon">⚙</span>
+          <span class="btn-footer-label">設定</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- Solo Game Screen -->
+  <!-- ===================== -->
+  <div id="game-screen" class="screen">
+    <div class="game-header">
+      <div class="round-info">
+        <span class="round-badge">ラウンド <span id="solo-round">1</span> / 5</span>
+        <div class="progress-bar" aria-label="ゲーム進行状況">
+          <div class="progress-fill" id="solo-progress" style="width: 20%"></div>
+        </div>
+      </div>
+      <div class="score-display">
+        <span class="score-label">スコア</span>
+        <span class="score-value" id="solo-score">0</span>
+      </div>
+      <button class="btn-icon" onclick="showRulesModal()" title="役一覧" aria-label="役一覧を表示">?</button>
+    </div>
+
+    <div class="hand-area">
+      <div class="hand-label">あなたの手札</div>
+      <div class="hand-cards" id="solo-hand">
+        <!-- Cards will be inserted here -->
+      </div>
+    </div>
+
+    <div class="role-display" id="solo-role" aria-live="polite" aria-atomic="true">
+      <div class="role-name"></div>
+      <div class="role-points">獲得ポイント: <span>0</span></div>
+    </div>
+
+    <div class="game-actions" id="solo-actions">
+      <p class="action-hint">交換するカードを選択してください（<span class="selected-count" id="solo-selected-count" aria-live="polite">0</span>枚選択中）</p>
+      <button class="btn btn-primary" onclick="exchangeCards()">交換する</button>
+      <button class="btn btn-secondary" onclick="skipExchange()">交換しない</button>
+      <button class="btn-text" id="solo-clear-selection" onclick="clearSelection('solo')" style="display: none;">選択を解除</button>
+    </div>
+
+    <div class="game-actions" id="solo-next-actions" style="display: none;">
+      <button class="btn btn-primary" onclick="nextRound()">次のラウンドへ</button>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- Battle Screen -->
+  <!-- ===================== -->
+  <div id="battle-screen" class="screen">
+    <div class="game-header">
+      <div class="round-info">
+        <span class="round-badge">ラウンド <span id="battle-round">1</span> / 5</span>
+        <div class="progress-bar" aria-label="ゲーム進行状況">
+          <div class="progress-fill" id="battle-progress" style="width: 20%"></div>
+        </div>
+      </div>
+      <div class="score-display">
+        <span class="score-label">スコア</span>
+        <span class="score-value" id="battle-score">0</span>
+      </div>
+      <button class="btn-icon" onclick="showRulesModal()" title="役一覧" aria-label="役一覧を表示">?</button>
+    </div>
+
+    <div class="battle-roles-header" aria-live="polite" aria-atomic="true">
+      <div class="battle-role-box" id="dealer-role">
+        <div class="battle-role-label">🎩 ディーラー</div>
+        <div class="battle-role-result">
+          <div class="battle-role-name"></div>
+          <div class="battle-role-points"><span>0</span> pt</div>
+        </div>
+      </div>
+      <div class="battle-role-vs" aria-hidden="true">VS</div>
+      <div class="battle-role-box" id="player-role">
+        <div class="battle-role-label">🐱 あなた</div>
+        <div class="battle-role-result">
+          <div class="battle-role-name"></div>
+          <div class="battle-role-points"><span>0</span> pt</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="battle-area">
+      <div class="dealer-area">
+        <div class="dealer-header">
+          <div class="dealer-label">
+            <span class="dealer-icon">🎩</span>
+            <span>ディーラー</span>
+          </div>
+        </div>
+        <div class="hand-area hand-area-compact">
+          <div class="hand-cards" id="dealer-hand">
+            <!-- Dealer cards will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="vs-row">
+        <div class="vs-row-left"></div>
+        <div class="vs-divider">
+          <span class="vs-text">VS</span>
+        </div>
+        <div class="vs-row-right">
+          <div class="battle-actions-inline" id="battle-actions">
+            <span class="action-hint-inline">（<span id="battle-selected-count" aria-live="polite">0</span>枚選択中）</span>
+            <button class="btn btn-primary btn-sm" onclick="battleExchangeCards()">交換する</button>
+            <button class="btn btn-secondary btn-sm" onclick="battleSkipExchange()">交換しない</button>
+            <button class="btn-text" id="battle-clear-selection" onclick="clearSelection('battle')" style="display: none;">解除</button>
+          </div>
+          <div class="battle-actions-inline" id="battle-next-actions" style="display: none;">
+            <button class="btn btn-primary btn-sm" onclick="battleNextRound()">次のラウンドへ</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="player-area">
+        <div class="hand-area">
+          <div class="hand-label">あなたの手札</div>
+          <div class="hand-cards" id="battle-hand">
+            <!-- Player cards will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Battle Result Overlay -->
+  <div class="battle-result" id="battle-result">
+    <div class="result-content">
+      <div class="result-text" id="battle-result-text">勝利！</div>
+      <div class="result-role" id="battle-result-role">キジトラワンペア</div>
+      <div class="result-points" id="battle-result-points">+25 ポイント</div>
+      <button class="btn btn-primary" onclick="closeBattleResult()">OK</button>
+    </div>
+  </div>
+  <div class="confetti" id="confetti"></div>
+
+  <!-- ===================== -->
+  <!-- Result Screen -->
+  <!-- ===================== -->
+  <div id="result-screen" class="screen">
+    <div class="result-container">
+      <div class="final-score-title">最終スコア</div>
+      <div class="final-score-value" id="final-score">85</div>
+      <div class="final-score-label">ポイント</div>
+
+      <div class="round-history">
+        <div class="round-history-title">ラウンド履歴</div>
+        <div id="round-history-list">
+          <!-- History items will be inserted here -->
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-primary" onclick="playAgain()">もう一度遊ぶ</button>
+        <button class="btn btn-secondary" onclick="goToTitle()">タイトルに戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- Rules Modal -->
+  <!-- ===================== -->
+  <div class="modal-overlay" id="rules-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rules-modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="rules-modal-title">遊び方</h2>
+        <button class="modal-close" onclick="closeModal('rules-modal')" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="rules-section">
+          <h3>ゲームの目的</h3>
+          <p>5枚の猫カードで役を揃え、高いポイントを獲得することを目指します。各カードには「毛色」と「毛の長さ」の2つの属性があります。</p>
+        </div>
+
+        <div class="rules-section">
+          <h3>遊び方</h3>
+          <p>1. 5枚のカードが配られます<br>
+             2. 交換したいカードを選択します（0〜5枚）<br>
+             3. 選択したカードを新しいカードと交換します<br>
+             4. 最終的な手札で役が判定されます<br>
+             ※複数の役が成立する場合、ポイントが最も高い役が採用されます</p>
+        </div>
+
+        <details class="rules-accordion" open>
+          <summary class="rules-accordion-header">
+            <h3>役一覧（フラッシュ系）</h3>
+            <span class="accordion-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="rules-accordion-content">
+            <table class="role-table">
+              <thead>
+                <tr><th>役名</th><th>条件</th><th>ポイント</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>サビフラッシュ</td><td>サビ5枚</td><td>300</td></tr>
+                <tr><td>三毛フラッシュ</td><td>三毛5枚</td><td>299</td></tr>
+                <tr><td>トビフラッシュ</td><td>トビ5枚</td><td>298</td></tr>
+                <tr><td>白猫フラッシュ</td><td>白猫5枚</td><td>296</td></tr>
+                <tr><td>黒猫フラッシュ</td><td>黒猫5枚</td><td>295</td></tr>
+                <tr><td>サバトラフラッシュ</td><td>サバトラ5枚</td><td>288</td></tr>
+                <tr><td>白黒フラッシュ</td><td>白黒5枚</td><td>282</td></tr>
+                <tr><td>キジ白フラッシュ</td><td>キジ白5枚</td><td>258</td></tr>
+                <tr><td>グレーフラッシュ</td><td>グレー5枚</td><td>250</td></tr>
+                <tr><td>茶トラフラッシュ</td><td>茶トラ5枚</td><td>226</td></tr>
+                <tr><td>キジトラフラッシュ</td><td>キジトラ5枚</td><td>225</td></tr>
+                <tr><td>茶白フラッシュ</td><td>茶白5枚</td><td>198</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
+
+        <details class="rules-accordion">
+          <summary class="rules-accordion-header">
+            <h3>役一覧（ファー系・カラー系）</h3>
+            <span class="accordion-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="rules-accordion-content">
+            <p class="rules-note">
+              ※カラー系の役は毛色ごとに異なるポイントがあります（代表的なポイントを表示）
+            </p>
+            <table class="role-table">
+              <thead>
+                <tr><th>役名</th><th>条件</th><th>ポイント</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>フォーカラー</td><td>同色4枚</td><td>63〜277</td></tr>
+                <tr><td>フルハウス</td><td>同色3枚+別色2枚</td><td>105〜294</td></tr>
+                <tr><td>ロングファー</td><td>長毛5枚</td><td>100</td></tr>
+                <tr><td>スリーカラー</td><td>同色3枚</td><td>16〜112</td></tr>
+                <tr><td>ツーペア</td><td>2組のペア</td><td>23〜154</td></tr>
+                <tr><td>ワンペア</td><td>同色2枚</td><td>2〜21</td></tr>
+                <tr><td>ショートファー</td><td>短毛5枚</td><td>1</td></tr>
+                <tr><td>ノーペア</td><td>役なし</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- Settings Modal -->
+  <!-- ===================== -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="settings-modal-title">設定</h2>
+        <button class="modal-close" onclick="closeModal('settings-modal')" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-item">
+          <span class="setting-label" id="sound-effect-label">効果音</span>
+          <div class="toggle active" onclick="toggleSetting(this)" role="switch" aria-checked="true" aria-labelledby="sound-effect-label" tabindex="0"></div>
+        </div>
+        <div class="setting-item">
+          <label class="setting-label" for="volume-slider">音量</label>
+          <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="80" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80">
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">戦績リセット</span>
+          <button class="btn btn-danger" onclick="resetStats()">リセット</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== -->
+  <!-- Stats Modal -->
+  <!-- ===================== -->
+  <div class="modal-overlay" id="stats-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="stats-modal-title">
+      <div class="modal-header">
+        <h2 class="modal-title" id="stats-modal-title">戦績</h2>
+        <button class="modal-close" onclick="closeModal('stats-modal')" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-section">
+          <h3>ひとりで遊ぶ</h3>
+          <div class="stats-grid">
+            <div class="stats-item">
+              <span class="stats-value">42</span>
+              <span class="stats-label">プレイ回数</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">156</span>
+              <span class="stats-label">最高スコア</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">67.3</span>
+              <span class="stats-label">平均スコア</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <h3>対戦モード</h3>
+          <div class="stats-grid">
+            <div class="stats-item">
+              <span class="stats-value">28</span>
+              <span class="stats-label">プレイ回数</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">18</span>
+              <span class="stats-label">勝利数</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-value">64.3%</span>
+              <span class="stats-label">勝率</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <h3>役の達成回数</h3>
+          <div class="stats-roles">
+            <div class="stats-role-item">
+              <span class="stats-role-name">フラッシュ</span>
+              <span class="stats-role-count">3回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">ロングファー</span>
+              <span class="stats-role-count">8回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">フォーカラー</span>
+              <span class="stats-role-count">15回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">フルハウス</span>
+              <span class="stats-role-count">23回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">スリーカラー</span>
+              <span class="stats-role-count">47回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">ツーペア</span>
+              <span class="stats-role-count">32回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">ショートファー</span>
+              <span class="stats-role-count">21回</span>
+            </div>
+            <div class="stats-role-item">
+              <span class="stats-role-name">ワンペア</span>
+              <span class="stats-role-count">89回</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>
