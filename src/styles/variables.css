@@ -1,0 +1,67 @@
+/* ==================== */
+/* カラーパレット */
+/* ==================== */
+
+:root {
+  /* 背景色 */
+  --color-bg: #2d2a26; /* メイン背景（ダークブラウン） */
+  --color-bg-light: #3d3a35; /* 明るい背景 */
+  --color-card-bg: #4a4540; /* カード背景 */
+
+  /* プライマリ */
+  --color-primary: #d4a574; /* ゴールドブラウン */
+  --color-primary-light: #e8c9a0; /* 明るいゴールド */
+  --color-accent: #c17f59; /* アクセントオレンジ */
+
+  /* テキスト */
+  --color-text: #f5f0e8; /* メインテキスト（オフホワイト） */
+  --color-text-muted: #a89f94; /* サブテキスト */
+
+  /* ステータス */
+  --color-success: #7eb87e; /* 勝利（緑） */
+  --color-danger: #c46b6b; /* 敗北（赤） */
+
+  /* ==================== */
+  /* サイズ定義 */
+  /* ==================== */
+
+  /* カードサイズ - PC */
+  --card-width-pc: 150px;
+  --card-height-pc: 200px;
+
+  /* カードサイズ - SP */
+  --card-width-sp: 80px;
+  --card-height-sp: 107px;
+
+  /* ディーラーカード（80%サイズ） */
+  --dealer-card-width-pc: 120px;
+  --dealer-card-height-pc: 160px;
+
+  /* トランジション */
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+
+  /* ==================== */
+  /* レスポンシブ */
+  /* ==================== */
+
+  /* デフォルト: スマートフォン */
+  --card-width: var(--card-width-sp);
+  --card-height: var(--card-height-sp);
+}
+
+/* タブレット */
+@media (min-width: 768px) {
+  :root {
+    --card-width: 120px;
+    --card-height: 160px;
+  }
+}
+
+/* PC（推奨） */
+@media (min-width: 1024px) {
+  :root {
+    --card-width: var(--card-width-pc);
+    --card-height: var(--card-height-pc);
+  }
+}
