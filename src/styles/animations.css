@@ -1,0 +1,157 @@
+/* ==================== */
+/* アニメーション定義 */
+/* ==================== */
+
+/* カード配布アニメーション */
+@keyframes dealCard {
+  from {
+    opacity: 0;
+    transform: translateX(-100px) rotate(-20deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+}
+
+.card.dealing {
+  animation: dealCard 0.4s ease-out forwards;
+}
+
+/* 配布タイミング（0.1秒間隔） */
+.card-wrapper:nth-child(1) .card.dealing {
+  animation-delay: 0s;
+}
+.card-wrapper:nth-child(2) .card.dealing {
+  animation-delay: 0.1s;
+}
+.card-wrapper:nth-child(3) .card.dealing {
+  animation-delay: 0.2s;
+}
+.card-wrapper:nth-child(4) .card.dealing {
+  animation-delay: 0.3s;
+}
+.card-wrapper:nth-child(5) .card.dealing {
+  animation-delay: 0.4s;
+}
+
+/* カード交換アウト（上方向へフェードアウト） */
+@keyframes cardExchangeOut {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+}
+
+.card.exchanging {
+  animation: cardExchangeOut 0.3s ease-in forwards;
+}
+
+/* カード交換イン（上から入場） */
+@keyframes cardEnterFromTop {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.card.entering {
+  animation: cardEnterFromTop 0.4s ease-out forwards;
+}
+
+/* 役成立時のカードハイライト */
+@keyframes cardGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(212, 165, 116, 1);
+  }
+}
+
+.card-wrapper.role-match .card {
+  border-color: var(--color-primary);
+  animation: cardGlow 1s ease-in-out infinite;
+}
+
+/* 役非構成カードの暗転 */
+.card-wrapper.role-no-match .card {
+  opacity: 0.5;
+  filter: grayscale(40%);
+}
+
+/* 役名ポップイン */
+@keyframes rolePopIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.role-name {
+  animation: rolePopIn 0.5s ease-out;
+}
+
+/* 画面フェードイン */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen.active {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* モーダルスライドイン */
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* 紙吹雪アニメーション */
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  animation: confettiFall 3s ease-out forwards;
+}
