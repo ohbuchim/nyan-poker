@@ -90,6 +90,11 @@ export const FUR_ROLES: Record<FurCode, { name: string; points: number }> = {
 };
 
 // === ツーペアのポイント計算 ===
+
+/** ツーペアのポイント計算用の線形マッピング係数 */
+const TWO_PAIR_COEFFICIENT = 6.55;
+const TWO_PAIR_INTERCEPT = 3.35;
+
 /**
  * ツーペアのポイントを計算
  * 2色のレアリティスコアの合計を23〜154にマッピング
@@ -97,11 +102,16 @@ export const FUR_ROLES: Record<FurCode, { name: string; points: number }> = {
 export function calculateTwoPairPoints(color1: ColorCode, color2: ColorCode): number {
   const score = COLOR_RARITY[color1] + COLOR_RARITY[color2];
   // スコア範囲: 3（最低: 茶白+キジトラ）〜23（最高: サビ+三毛）→ ポイント範囲: 23〜154
-  // 線形マッピング: points = 6.55 * score + 3.35
-  return Math.round(6.55 * score + 3.35);
+  // 線形マッピング: points = TWO_PAIR_COEFFICIENT * score + TWO_PAIR_INTERCEPT
+  return Math.round(TWO_PAIR_COEFFICIENT * score + TWO_PAIR_INTERCEPT);
 }
 
 // === フルハウスのポイント計算 ===
+
+/** フルハウスのポイント計算用の線形マッピング係数 */
+const FULL_HOUSE_COEFFICIENT = 6.097;
+const FULL_HOUSE_INTERCEPT = 80.613;
+
 /**
  * フルハウスのポイントを計算
  * 3枚の色を重み付けして105〜294にマッピング
@@ -109,8 +119,8 @@ export function calculateTwoPairPoints(color1: ColorCode, color2: ColorCode): nu
 export function calculateFullHousePoints(threeColor: ColorCode, twoColor: ColorCode): number {
   const score = COLOR_RARITY[threeColor] * 2 + COLOR_RARITY[twoColor];
   // スコア範囲: 4（最低: 茶白×キジトラ）〜35（最高: サビ×三毛）→ ポイント範囲: 105〜294
-  // 線形マッピング: points = 6.097 * score + 80.613
-  return Math.round(6.097 * score + 80.613);
+  // 線形マッピング: points = FULL_HOUSE_COEFFICIENT * score + FULL_HOUSE_INTERCEPT
+  return Math.round(FULL_HOUSE_COEFFICIENT * score + FULL_HOUSE_INTERCEPT);
 }
 
 // === ノーペア ===
