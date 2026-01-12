@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Hand } from '../Hand';
 import type { Card as CardType } from '../../../types';
@@ -281,6 +281,156 @@ describe('Hand', () => {
       // The same card should not have enter animation
       const enterCards = container.querySelectorAll('[class*="card--enter"]');
       expect(enterCards.length).toBe(0);
+    });
+  });
+
+  describe('Deal Animation Callback', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('calls onDealAnimationComplete after deal animation finishes', async () => {
+      const onDealAnimationComplete = vi.fn();
+
+      // First render with empty cards
+      const { rerender } = render(
+        <Hand cards={[]} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Then add cards (simulating game start)
+      const cards = createMockCards();
+      rerender(
+        <Hand cards={cards} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Animation should not have completed yet
+      expect(onDealAnimationComplete).not.toHaveBeenCalled();
+
+      // Wait for animation to complete (5 cards: 4 * 100ms intervals + 300ms duration = 700ms)
+      await act(async () => {
+        vi.advanceTimersByTime(700);
+      });
+
+      expect(onDealAnimationComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not call onDealAnimationComplete when animationType is not deal', async () => {
+      const onDealAnimationComplete = vi.fn();
+      const cards = createMockCards();
+
+      render(
+        <Hand cards={cards} animationType="none" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      await act(async () => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(onDealAnimationComplete).not.toHaveBeenCalled();
+    });
+
+    it('does not call onDealAnimationComplete when cards array is empty', async () => {
+      const onDealAnimationComplete = vi.fn();
+
+      render(
+        <Hand cards={[]} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      await act(async () => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      expect(onDealAnimationComplete).not.toHaveBeenCalled();
+    });
+
+    it('calculates correct animation duration based on card count', async () => {
+      const onDealAnimationComplete = vi.fn();
+
+      // First render with empty cards
+      const { rerender } = render(
+        <Hand cards={[]} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Add only 3 cards
+      const cards = createMockCards(3);
+      rerender(
+        <Hand cards={cards} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // 3 cards: 2 * 100ms intervals + 300ms duration = 500ms
+      await act(async () => {
+        vi.advanceTimersByTime(400);
+      });
+      expect(onDealAnimationComplete).not.toHaveBeenCalled();
+
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+      expect(onDealAnimationComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it('only triggers animation once per deal cycle', async () => {
+      const onDealAnimationComplete = vi.fn();
+
+      // First render with empty cards
+      const { rerender } = render(
+        <Hand cards={[]} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Add cards
+      const cards = createMockCards();
+      rerender(
+        <Hand cards={cards} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Complete animation
+      await act(async () => {
+        vi.advanceTimersByTime(700);
+      });
+
+      expect(onDealAnimationComplete).toHaveBeenCalledTimes(1);
+
+      // Rerender with same cards and animationType
+      rerender(
+        <Hand cards={cards} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      await act(async () => {
+        vi.advanceTimersByTime(700);
+      });
+
+      // Should still be 1, not 2
+      expect(onDealAnimationComplete).toHaveBeenCalledTimes(1);
+    });
+
+    it('cleans up timer on unmount', async () => {
+      const onDealAnimationComplete = vi.fn();
+
+      // First render with empty cards
+      const { rerender, unmount } = render(
+        <Hand cards={[]} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Add cards to start animation
+      const cards = createMockCards();
+      rerender(
+        <Hand cards={cards} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Unmount before animation completes
+      unmount();
+
+      // Advance timers
+      await act(async () => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      // Callback should not have been called
+      expect(onDealAnimationComplete).not.toHaveBeenCalled();
     });
   });
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { Card as CardType } from '../../types';
 import { Card, type CardAnimationType } from './Card';
 import { CardInfo } from './CardInfo';
@@ -6,6 +6,17 @@ import styles from './Hand.module.css';
 
 /** Maximum number of cards that can be selected for exchange */
 const MAX_SELECTED_CARDS = 3;
+
+/** Animation timing constants */
+const CARD_DEAL_DURATION = 300; // 0.3s per card
+const CARD_DEAL_INTERVAL = 100; // 0.1s between cards
+
+/** Calculate total deal animation duration */
+const calculateDealAnimationDuration = (cardCount: number): number => {
+  if (cardCount === 0) return 0;
+  // Last card starts at (cardCount - 1) * interval, then plays for CARD_DEAL_DURATION
+  return (cardCount - 1) * CARD_DEAL_INTERVAL + CARD_DEAL_DURATION;
+};
 
 export interface HandProps {
   /** Array of cards in hand (should be 5 cards) */
@@ -28,6 +39,8 @@ export interface HandProps {
   animationType?: CardAnimationType;
   /** Array of card IDs that are newly drawn (for enter animation) */
   newCardIds?: number[];
+  /** Callback when deal animation completes */
+  onDealAnimationComplete?: () => void;
   /** Additional class name */
   className?: string;
 }
@@ -53,9 +66,62 @@ export const Hand: React.FC<HandProps> = ({
   isDealer = false,
   animationType = 'none',
   newCardIds = [],
+  onDealAnimationComplete,
   className,
 }) => {
   const hasMatchingCards = matchingCardIds.length > 0;
+  const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevCardsLengthRef = useRef<number>(0);
+  const isAnimatingRef = useRef<boolean>(false);
+
+  // Handle deal animation completion callback
+  useEffect(() => {
+    // Trigger when we start a deal animation (cards just appeared)
+    // This happens when: animationType is 'deal', cards changed from 0 to > 0
+    const shouldStartAnimation =
+      animationType === 'deal' &&
+      cards.length > 0 &&
+      prevCardsLengthRef.current === 0 &&
+      !isAnimatingRef.current;
+
+    if (shouldStartAnimation) {
+      isAnimatingRef.current = true;
+
+      // Clear any existing timer
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+
+      // Calculate when all cards will finish animating
+      const totalDuration = calculateDealAnimationDuration(cards.length);
+
+      // Set timer to call completion callback
+      if (onDealAnimationComplete) {
+        animationTimerRef.current = setTimeout(() => {
+          isAnimatingRef.current = false;
+          onDealAnimationComplete();
+        }, totalDuration);
+      }
+    }
+
+    // Reset animation state when animation type changes to 'none'
+    if (animationType === 'none' && isAnimatingRef.current) {
+      isAnimatingRef.current = false;
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+        animationTimerRef.current = null;
+      }
+    }
+
+    prevCardsLengthRef.current = cards.length;
+
+    // Cleanup timer on unmount
+    return () => {
+      if (animationTimerRef.current) {
+        clearTimeout(animationTimerRef.current);
+      }
+    };
+  }, [animationType, cards.length, onDealAnimationComplete]);
 
   const handleCardClick = useCallback(
     (cardId: number) => {

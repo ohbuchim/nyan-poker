@@ -74,7 +74,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText('スコア')).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText(/1/)).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText('スコア')).toBeInTheDocument();
@@ -105,7 +105,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const vsElements = screen.getAllByText('VS');
@@ -116,7 +116,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Check for multiple occurrences of Dealer
@@ -128,7 +128,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText('Your Hand')).toBeInTheDocument();
@@ -140,7 +140,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText('交換する')).toBeInTheDocument();
@@ -151,7 +151,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Score display shows 0, there may be multiple 0s
@@ -165,7 +165,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Check for Dealer label in role boxes
@@ -177,7 +177,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText('You')).toBeInTheDocument();
@@ -189,7 +189,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText('交換しない');
@@ -208,7 +208,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText('交換しない');
@@ -227,7 +227,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText('交換しない');
@@ -245,7 +245,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText('交換しない');
@@ -267,7 +267,7 @@ describe('BattleScreen', () => {
 
       // Wait for initial deal
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Skip exchange
@@ -301,7 +301,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // The test checks that the component renders correctly
@@ -315,7 +315,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...props} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const rulesButton = screen.getByRole('button', { name: '役一覧を表示' });
@@ -330,7 +330,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // In selecting phase, dealer cards should not show role info
@@ -342,7 +342,7 @@ describe('BattleScreen', () => {
       render(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText('交換しない');

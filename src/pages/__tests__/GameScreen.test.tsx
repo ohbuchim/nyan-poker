@@ -49,7 +49,7 @@ describe('GameScreen', () => {
 
       // Wait for dealing animation
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Round badge should contain "ラウンド 1"
@@ -61,7 +61,7 @@ describe('GameScreen', () => {
       render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       expect(screen.getByText('あなたの手札')).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('GameScreen', () => {
       const { container } = render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Check that primary button (exchange) exists
@@ -109,7 +109,7 @@ describe('GameScreen', () => {
       const { container } = render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // This tests that the exchangingCardIds prop is passed through to Hand component
@@ -123,7 +123,7 @@ describe('GameScreen', () => {
       render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText(/交換しない/);
@@ -144,7 +144,7 @@ describe('GameScreen', () => {
       render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText(/交換しない/);
@@ -166,7 +166,7 @@ describe('GameScreen', () => {
       const { container } = render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Need to select a card first to enable exchange button
@@ -185,7 +185,7 @@ describe('GameScreen', () => {
 
       // Round 1
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       const skipButton = screen.getByText(/交換しない/);
@@ -203,7 +203,7 @@ describe('GameScreen', () => {
       const nextButton = screen.getByText(/次のラウンドへ/);
       await act(async () => {
         nextButton.click();
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Round badge should show round 2
@@ -217,7 +217,7 @@ describe('GameScreen', () => {
       // Play through 5 rounds
       for (let round = 1; round <= 5; round++) {
         await act(async () => {
-          vi.advanceTimersByTime(600);
+          vi.advanceTimersByTime(800);
         });
 
         const skipButton = screen.getByText(/交換しない/);
@@ -245,7 +245,7 @@ describe('GameScreen', () => {
       // Play through 5 rounds
       for (let round = 1; round <= 5; round++) {
         await act(async () => {
-          vi.advanceTimersByTime(600);
+          vi.advanceTimersByTime(800);
         });
 
         const skipButton = screen.getByText(/交換しない/);
@@ -278,7 +278,7 @@ describe('GameScreen', () => {
       const { container } = render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Hand component should be rendered
@@ -294,7 +294,7 @@ describe('GameScreen', () => {
       const { container } = render(<GameScreen {...defaultProps} />);
 
       await act(async () => {
-        vi.advanceTimersByTime(600);
+        vi.advanceTimersByTime(800);
       });
 
       // Button group should contain exchange and skip buttons

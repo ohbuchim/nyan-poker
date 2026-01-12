@@ -9,7 +9,6 @@ import styles from './GameScreen.module.css';
 const MAX_SELECTABLE_CARDS = 3;
 const TOTAL_ROUNDS = 5;
 const HAND_SIZE = 5;
-const DEAL_ANIMATION_DELAY = 500;
 const EXCHANGE_ANIMATION_DELAY = 400;
 
 export interface GameScreenProps {
@@ -42,11 +41,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     const newHand = drawCards(HAND_SIZE, usedCardIds);
     setHand(newHand);
     setUsedCardIds((prev) => [...prev, ...newHand.map((c) => c.id)]);
-
-    setTimeout(() => {
-      setPhase('selecting');
-    }, DEAL_ANIMATION_DELAY);
+    // Phase transition to 'selecting' is now handled by onDealAnimationComplete
   }, [usedCardIds]);
+
+  // Handle deal animation completion
+  const handleDealAnimationComplete = useCallback(() => {
+    if (phase === 'dealing') {
+      setPhase('selecting');
+    }
+  }, [phase]);
 
   useEffect(() => {
     if (phase === 'dealing' && hand.length === 0) {
@@ -196,6 +199,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           disabled={!isInteractive}
           animationType={getAnimationType()}
           newCardIds={newCardIds}
+          onDealAnimationComplete={handleDealAnimationComplete}
         />
       </div>
 
