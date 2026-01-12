@@ -43,6 +43,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const [dealerRole, setDealerRole] = useState<Role | null>(null);
   const [history, setHistory] = useState<RoundHistory[]>([]);
   const [newCardIds, setNewCardIds] = useState<number[]>([]);
+  const [exchangingCardIds, setExchangingCardIds] = useState<number[]>([]);
   const [usedCardIds, setUsedCardIds] = useState<number[]>([]);
   const [showResultOverlay, setShowResultOverlay] = useState(false);
   const [roundResult, setRoundResult] = useState<BattleResult>('draw');
@@ -54,6 +55,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setPlayerRole(null);
     setDealerRole(null);
     setNewCardIds([]);
+    setExchangingCardIds([]);
     setShowResultOverlay(false);
 
     // Draw player's hand
@@ -163,11 +165,14 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setPhase('exchanging');
 
     if (selectedCardIds.length > 0) {
+      // Start exit animation for selected cards
+      setExchangingCardIds(selectedCardIds);
+
       // Draw new cards for player
       const newCards = drawCards(selectedCardIds.length, usedCardIds);
       setUsedCardIds((prev) => [...prev, ...newCards.map((c) => c.id)]);
-      setNewCardIds(newCards.map((c) => c.id));
 
+      // Wait for exit animation (0.3s) before replacing cards
       setTimeout(() => {
         setPlayerHand((prev) => {
           const newHand = [...prev];
@@ -181,9 +186,12 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           return newHand;
         });
 
+        // Clear exchanging cards and set new card IDs for enter animation
+        setExchangingCardIds([]);
+        setNewCardIds(newCards.map((c) => c.id));
         setSelectedCardIds([]);
 
-        // Dealer exchange after player
+        // Wait for enter animation (0.4s) before dealer exchange
         setTimeout(() => {
           performDealerExchange();
 
@@ -192,7 +200,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
             revealRoles();
           }, DEALER_EXCHANGE_DELAY);
         }, EXCHANGE_ANIMATION_DELAY);
-      }, EXCHANGE_ANIMATION_DELAY);
+      }, 300); // Exit animation duration
     } else {
       // No cards selected, proceed to dealer exchange
       setTimeout(() => {
@@ -245,6 +253,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
   const isInteractive = phase === 'selecting';
   const isExchanged = phase === 'result' || phase === 'revealing';
+  const isExchanging = phase === 'exchanging';
   const isLastRound = round === TOTAL_ROUNDS;
   const showDealerCards = phase === 'result' || phase === 'revealing';
 
@@ -325,6 +334,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
                 exchanged={isExchanged}
                 isRevealing={phase === 'revealing' && !playerRole}
                 isLastRound={isLastRound}
+                isExchanging={isExchanging}
                 onExchange={handleExchange}
                 onSkipExchange={handleSkipExchange}
                 onClearSelection={handleClearSelection}
@@ -344,6 +354,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
               showCards={true}
               selectedCardIds={selectedCardIds}
               matchingCardIds={playerRole?.matchingCardIds || []}
+              exchangingCardIds={exchangingCardIds}
               onCardClick={isInteractive ? handleCardClick : undefined}
               disabled={!isInteractive}
               animationType={getAnimationType()}

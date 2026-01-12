@@ -8,6 +8,7 @@ export interface ActionButtonsProps {
   exchanged: boolean;
   isRevealing: boolean;
   isLastRound: boolean;
+  isExchanging?: boolean;
   onExchange: () => void;
   onSkipExchange: () => void;
   onClearSelection: () => void;
@@ -22,6 +23,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   exchanged,
   isRevealing,
   isLastRound,
+  isExchanging = false,
   onExchange,
   onSkipExchange,
   onClearSelection,
@@ -62,19 +64,21 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         <Button
           variant="primary"
           onClick={onExchange}
-          disabled={selectedCount === 0}
+          disabled={selectedCount === 0 || isExchanging}
+          loading={isExchanging}
           size={variant === 'inline' ? 'sm' : 'md'}
         >
-          交換する
+          {isExchanging ? '交換中...' : '交換する'}
         </Button>
         <Button
           variant="secondary"
           onClick={onSkipExchange}
+          disabled={isExchanging}
           size={variant === 'inline' ? 'sm' : 'md'}
         >
           交換しない
         </Button>
-        {selectedCount > 0 && (
+        {selectedCount > 0 && !isExchanging && (
           <Button variant="text" onClick={onClearSelection}>
             {variant === 'inline' ? '解除' : '選択を解除'}
           </Button>
