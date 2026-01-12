@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type { Role } from '../../types';
 import { Button } from '../common';
+import { Confetti } from '../effects';
 import styles from './BattleResultOverlay.module.css';
 
 export type BattleResult = 'win' | 'lose' | 'draw';
@@ -32,6 +33,21 @@ export const BattleResultOverlay: React.FC<BattleResultOverlayProps> = ({
   pointsChange,
   onClose,
 }) => {
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Start confetti when visible and result is 'win'
+  useEffect(() => {
+    if (visible && result === 'win') {
+      setShowConfetti(true);
+    } else {
+      setShowConfetti(false);
+    }
+  }, [visible, result]);
+
+  const handleConfettiComplete = useCallback(() => {
+    setShowConfetti(false);
+  }, []);
+
   const handleOverlayClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (e.target === e.currentTarget) {
@@ -115,23 +131,31 @@ export const BattleResultOverlay: React.FC<BattleResultOverlayProps> = ({
   };
 
   return (
-    <div
-      className={styles.overlay}
-      onClick={handleOverlayClick}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="battle-result-title"
-    >
-      <div className={styles.content}>
-        <h2 id="battle-result-title" className={getResultTextClass()}>
-          {getResultText()}
-        </h2>
-        <p className={styles['result-role']}>{getRoleDisplay()}</p>
-        <p className={getPointsClass()}>{getPointsDisplay()}</p>
-        <Button variant="primary" onClick={onClose}>
-          OK
-        </Button>
+    <>
+      <Confetti
+        active={showConfetti}
+        duration={5000}
+        particleCount={150}
+        onComplete={handleConfettiComplete}
+      />
+      <div
+        className={styles.overlay}
+        onClick={handleOverlayClick}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="battle-result-title"
+      >
+        <div className={styles.content}>
+          <h2 id="battle-result-title" className={getResultTextClass()}>
+            {getResultText()}
+          </h2>
+          <p className={styles['result-role']}>{getRoleDisplay()}</p>
+          <p className={getPointsClass()}>{getPointsDisplay()}</p>
+          <Button variant="primary" onClick={onClose}>
+            OK
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
