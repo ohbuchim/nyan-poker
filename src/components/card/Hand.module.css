@@ -1,0 +1,129 @@
+/* ==================== */
+/* Hand Base */
+/* ==================== */
+
+.hand {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3, 12px);
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .hand {
+    gap: var(--space-4, 16px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hand {
+    gap: var(--space-5, 20px);
+  }
+}
+
+@media (max-width: 767px) {
+  .hand {
+    gap: var(--space-2, 8px);
+  }
+}
+
+/* ==================== */
+/* Card Wrapper */
+/* ==================== */
+
+.hand__card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+@media (max-width: 767px) {
+  .hand__card-wrapper {
+    gap: var(--space-1, 4px);
+  }
+}
+
+/* ==================== */
+/* Dealer Hand Variant */
+/* ==================== */
+
+.hand--dealer {
+  gap: var(--space-2, 8px);
+}
+
+/* Dealer cards are 80% size */
+.hand--dealer .hand__card-wrapper [class*='card'] {
+  width: calc(var(--card-width, 80px) * 0.8);
+  height: calc(var(--card-height, 107px) * 0.8);
+}
+
+@media (min-width: 768px) {
+  .hand--dealer .hand__card-wrapper [class*='card'] {
+    width: calc(120px * 0.8);
+    height: calc(160px * 0.8);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hand--dealer .hand__card-wrapper [class*='card'] {
+    width: var(--dealer-card-width-pc, 120px);
+    height: var(--dealer-card-height-pc, 160px);
+  }
+}
+
+/* Dealer cards don't hover */
+.hand--dealer .hand__card-wrapper [class*='card']:hover {
+  transform: none;
+}
+
+/* Dealer card info is slightly smaller */
+.hand--dealer .hand__card-wrapper [class*='card-info'] {
+  font-size: var(--font-size-base, 14px);
+  min-height: 36px;
+}
+
+@media (max-width: 767px) {
+  .hand--dealer .hand__card-wrapper [class*='card-info'] {
+    font-size: var(--font-size-xs, 11px);
+    min-height: 28px;
+  }
+}
+
+/* ==================== */
+/* Animation Delays */
+/* ==================== */
+
+/* Staggered deal animation */
+.hand__card-wrapper:nth-child(1) [class*='card--deal'] {
+  animation-delay: 0s;
+}
+.hand__card-wrapper:nth-child(2) [class*='card--deal'] {
+  animation-delay: 0.1s;
+}
+.hand__card-wrapper:nth-child(3) [class*='card--deal'] {
+  animation-delay: 0.2s;
+}
+.hand__card-wrapper:nth-child(4) [class*='card--deal'] {
+  animation-delay: 0.3s;
+}
+.hand__card-wrapper:nth-child(5) [class*='card--deal'] {
+  animation-delay: 0.4s;
+}
+
+/* Staggered enter animation */
+.hand__card-wrapper:nth-child(1) [class*='card--enter'] {
+  animation-delay: 0s;
+}
+.hand__card-wrapper:nth-child(2) [class*='card--enter'] {
+  animation-delay: 0.05s;
+}
+.hand__card-wrapper:nth-child(3) [class*='card--enter'] {
+  animation-delay: 0.1s;
+}
+.hand__card-wrapper:nth-child(4) [class*='card--enter'] {
+  animation-delay: 0.15s;
+}
+.hand__card-wrapper:nth-child(5) [class*='card--enter'] {
+  animation-delay: 0.2s;
+}
