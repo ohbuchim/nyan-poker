@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3, 12px);
+  margin-top: var(--space-4, 16px);
+}
+
+.container--column {
+  flex-direction: column;
+}
+
+.container--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-hint {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-text-muted, #c4bdb3);
+  text-align: center;
+  margin: 0;
+}
+
+.selected-count {
+  color: var(--color-primary, #d4a574);
+  font-weight: 700;
+}
+
+.button-group {
+  display: flex;
+  gap: var(--space-3, 12px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
