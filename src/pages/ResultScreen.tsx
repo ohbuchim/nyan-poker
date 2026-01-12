@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from '../components/common';
 import type { GameMode, RoundHistory } from '../types';
 import styles from './ResultScreen.module.css';
@@ -16,6 +16,16 @@ export interface ResultScreenProps {
   onReturnToTitle: () => void;
 }
 
+/** Battle result summary for display */
+interface BattleResultSummary {
+  wins: number;
+  losses: number;
+  draws: number;
+  finalResult: 'win' | 'lose' | 'draw';
+  dealerTotalScore: number;
+  scoreDifference: number;
+}
+
 /**
  * ResultScreen component
  *
@@ -30,6 +40,43 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   onReturnToTitle,
 }) => {
   const isBattleMode = mode === 'battle';
+
+  /**
+   * Calculate battle result summary
+   */
+  const battleSummary = useMemo((): BattleResultSummary | null => {
+    if (!isBattleMode) return null;
+
+    const wins = history.filter((r) => r.result === 'win').length;
+    const losses = history.filter((r) => r.result === 'lose').length;
+    const draws = history.filter((r) => r.result === 'draw').length;
+
+    // Calculate dealer's total score (sum of dealer's points)
+    const dealerTotalScore = history.reduce((sum, r) => {
+      return sum + (r.dealerPoints ?? 0);
+    }, 0);
+
+    const scoreDifference = totalScore - dealerTotalScore;
+
+    // Determine final result based on total score difference
+    let finalResult: 'win' | 'lose' | 'draw';
+    if (scoreDifference > 0) {
+      finalResult = 'win';
+    } else if (scoreDifference < 0) {
+      finalResult = 'lose';
+    } else {
+      finalResult = 'draw';
+    }
+
+    return {
+      wins,
+      losses,
+      draws,
+      finalResult,
+      dealerTotalScore,
+      scoreDifference,
+    };
+  }, [history, isBattleMode, totalScore]);
 
   /**
    * Get CSS class for points based on value
@@ -49,16 +96,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   };
 
   /**
-   * Get result icon for battle mode
+   * Get result icon for battle mode (circle/cross/triangle)
    */
   const getResultIcon = (result?: 'win' | 'lose' | 'draw'): string => {
     switch (result) {
       case 'win':
-        return 'W';
+        return '\u25CB'; // Circle (maru)
       case 'lose':
-        return 'L';
+        return '\u00D7'; // Cross (batsu)
       case 'draw':
-        return 'D';
+        return '\u25B3'; // Triangle (sankaku)
       default:
         return '';
     }
@@ -80,21 +127,116 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     }
   };
 
+  /**
+   * Get final result display text
+   */
+  const getFinalResultText = (
+    result: 'win' | 'lose' | 'draw'
+  ): string => {
+    switch (result) {
+      case 'win':
+        return 'WIN';
+      case 'lose':
+        return 'LOSE';
+      case 'draw':
+        return 'DRAW';
+    }
+  };
+
+  /**
+   * Get final result CSS class
+   */
+  const getFinalResultClass = (
+    result: 'win' | 'lose' | 'draw'
+  ): string => {
+    switch (result) {
+      case 'win':
+        return styles.resultWin;
+      case 'lose':
+        return styles.resultLose;
+      case 'draw':
+        return styles.resultDraw;
+    }
+  };
+
   return (
     <div className={styles.container} data-testid="result-screen">
       <div className={styles.content}>
-        {/* Final Score Display */}
-        <div className={styles.scoreSection}>
-          <h2 className={styles.scoreTitle}>最終スコア</h2>
-          <div
-            className={styles.scoreValue}
-            data-testid="final-score"
-            aria-label={`最終スコア: ${totalScore}ポイント`}
-          >
-            {totalScore}
+        {/* Battle Mode: Final Result Display */}
+        {isBattleMode && battleSummary && (
+          <div className={styles.battleResultSection} data-testid="battle-result-section">
+            {/* Final Result (WIN/LOSE/DRAW) */}
+            <div
+              className={`${styles.finalResult} ${getFinalResultClass(battleSummary.finalResult)}`}
+              data-testid="final-result"
+              aria-label={`最終結果: ${getFinalResultText(battleSummary.finalResult)}`}
+            >
+              {getFinalResultText(battleSummary.finalResult)}
+            </div>
+
+            {/* Win/Loss Count */}
+            <div className={styles.battleRecord} data-testid="battle-record">
+              <span className={styles.recordWins}>{battleSummary.wins}勝</span>
+              <span className={styles.recordSeparator}>-</span>
+              <span className={styles.recordLosses}>{battleSummary.losses}敗</span>
+              {battleSummary.draws > 0 && (
+                <>
+                  <span className={styles.recordSeparator}>-</span>
+                  <span className={styles.recordDraws}>{battleSummary.draws}分</span>
+                </>
+              )}
+            </div>
+
+            {/* Score Difference */}
+            <div
+              className={`${styles.scoreDifference} ${getPointsClass(battleSummary.scoreDifference)}`}
+              data-testid="score-difference"
+            >
+              {formatPoints(battleSummary.scoreDifference)} pt
+            </div>
           </div>
-          <div className={styles.scoreLabel}>ポイント</div>
-        </div>
+        )}
+
+        {/* Score Summary Section */}
+        {isBattleMode && battleSummary ? (
+          <div className={styles.scoreSummarySection} data-testid="score-summary">
+            <h3 className={styles.scoreSummaryTitle}>スコアサマリー</h3>
+            <div className={styles.scoreSummaryGrid}>
+              <div className={styles.scoreSummaryItem}>
+                <span className={styles.scoreSummaryLabel}>あなた</span>
+                <span
+                  className={`${styles.scoreSummaryValue} ${getPointsClass(totalScore)}`}
+                  data-testid="player-final-score"
+                >
+                  {totalScore}
+                </span>
+              </div>
+              <div className={styles.scoreSummaryVs}>VS</div>
+              <div className={styles.scoreSummaryItem}>
+                <span className={styles.scoreSummaryLabel}>ディーラー</span>
+                <span
+                  className={`${styles.scoreSummaryValue} ${getPointsClass(battleSummary.dealerTotalScore)}`}
+                  data-testid="dealer-final-score"
+                >
+                  {battleSummary.dealerTotalScore}
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Solo Mode: Final Score Display */
+          <div className={styles.scoreSection}>
+            <h2 className={styles.scoreTitle}>最終スコア</h2>
+            <div
+              className={styles.scoreValue}
+              data-testid="final-score"
+              aria-label={`最終スコア: ${totalScore}ポイント`}
+            >
+              {totalScore}
+            </div>
+            <div className={styles.scoreLabel}>ポイント</div>
+          </div>
+        )}
 
         {/* Round History */}
         <div className={styles.historySection}>
@@ -108,7 +250,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             {history.map((round) => (
               <div
                 key={round.round}
-                className={styles.historyItem}
+                className={`${styles.historyItem} ${isBattleMode ? styles.historyItemBattle : ''}`}
                 role="listitem"
                 data-testid={`round-${round.round}`}
               >
@@ -127,11 +269,30 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                       {getResultIcon(round.result)}
                     </span>
                   )}
-                  <span className={styles.roundName}>
-                    ラウンド{round.round}
+                  <span className={isBattleMode ? styles.roundNumber : styles.roundName}>
+                    {isBattleMode ? `R${round.round}` : `ラウンド${round.round}`}
                   </span>
                 </div>
-                <span className={styles.roleName}>{round.playerRole.name}</span>
+
+                {isBattleMode ? (
+                  /* Battle Mode: Show both player and dealer info */
+                  <div className={styles.battleRoundDetails}>
+                    <div className={styles.playerRoundInfo}>
+                      <span className={styles.roleLabel}>You</span>
+                      <span className={styles.roleName}>{round.playerRole.name}</span>
+                      <span className={styles.rolePoints}>{round.playerRole.points}pt</span>
+                    </div>
+                    <div className={styles.dealerRoundInfo}>
+                      <span className={styles.roleLabel}>Dealer</span>
+                      <span className={styles.roleName}>{round.dealerRole?.name ?? '-'}</span>
+                      <span className={styles.rolePoints}>{round.dealerRole?.points ?? 0}pt</span>
+                    </div>
+                  </div>
+                ) : (
+                  /* Solo Mode: Show only player role */
+                  <span className={styles.roleName}>{round.playerRole.name}</span>
+                )}
+
                 <span
                   className={`${styles.points} ${getPointsClass(round.playerPoints)}`}
                 >

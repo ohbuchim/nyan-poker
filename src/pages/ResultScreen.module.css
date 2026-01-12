@@ -192,6 +192,174 @@
   color: var(--color-text-muted, #c4bdb3);
 }
 
+/* Battle Result Section */
+.battleResultSection {
+  margin-bottom: var(--space-6, 24px);
+  text-align: center;
+}
+
+.finalResult {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: var(--space-3, 12px);
+  line-height: var(--line-height-tight, 1.3);
+  animation: resultPopIn 0.6s ease-out;
+}
+
+@keyframes resultPopIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.resultWin {
+  color: var(--color-success, #7eb87e);
+}
+
+.resultLose {
+  color: var(--color-danger, #c46b6b);
+}
+
+.resultDraw {
+  color: var(--color-text-muted, #c4bdb3);
+}
+
+.battleRecord {
+  font-size: var(--font-size-xl, 24px);
+  margin-bottom: var(--space-3, 12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.recordWins {
+  color: var(--color-success, #7eb87e);
+  font-weight: 600;
+}
+
+.recordLosses {
+  color: var(--color-danger, #c46b6b);
+  font-weight: 600;
+}
+
+.recordDraws {
+  color: var(--color-text-muted, #c4bdb3);
+  font-weight: 600;
+}
+
+.recordSeparator {
+  color: var(--color-text-muted, #c4bdb3);
+}
+
+.scoreDifference {
+  font-size: var(--font-size-lg, 20px);
+  font-weight: 700;
+}
+
+/* Score Summary Section (Battle Mode) */
+.scoreSummarySection {
+  background: var(--color-bg-light, #3d3a35);
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-5, 20px);
+  margin-bottom: var(--space-6, 24px);
+}
+
+.scoreSummaryTitle {
+  font-size: var(--font-size-base, 14px);
+  color: var(--color-text-muted, #c4bdb3);
+  margin-bottom: var(--space-4, 16px);
+  line-height: var(--line-height-normal, 1.5);
+  font-weight: 500;
+  text-align: center;
+}
+
+.scoreSummaryGrid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4, 16px);
+}
+
+.scoreSummaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  min-width: 80px;
+}
+
+.scoreSummaryLabel {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-text-muted, #c4bdb3);
+}
+
+.scoreSummaryValue {
+  font-size: var(--font-size-2xl, 32px);
+  font-weight: 700;
+  color: var(--color-text, #f5f0e8);
+}
+
+.scoreSummaryVs {
+  font-size: var(--font-size-base, 14px);
+  color: var(--color-text-muted, #c4bdb3);
+  font-weight: 600;
+}
+
+/* Battle Mode History Item */
+.historyItemBattle {
+  flex-wrap: wrap;
+  gap: var(--space-2, 8px);
+}
+
+.roundNumber {
+  color: var(--color-text, #f5f0e8);
+  font-size: var(--font-size-base, 14px);
+  font-weight: 600;
+  min-width: 24px;
+}
+
+.battleRoundDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 4px);
+}
+
+.playerRoundInfo,
+.dealerRoundInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  font-size: var(--font-size-sm, 13px);
+}
+
+.playerRoundInfo {
+  color: var(--color-text, #f5f0e8);
+}
+
+.dealerRoundInfo {
+  color: var(--color-text-muted, #c4bdb3);
+}
+
+.roleLabel {
+  min-width: 50px;
+  font-weight: 600;
+}
+
+.rolePoints {
+  min-width: 40px;
+  text-align: right;
+}
+
 /* Action Buttons */
 .actions {
   display: flex;
@@ -205,6 +373,18 @@
     font-size: var(--font-size-4xl, 56px);
   }
 
+  .finalResult {
+    font-size: 40px;
+  }
+
+  .battleRecord {
+    font-size: var(--font-size-lg, 20px);
+  }
+
+  .scoreSummaryValue {
+    font-size: var(--font-size-xl, 24px);
+  }
+
   .historySection {
     padding: var(--space-4, 16px);
   }
@@ -215,6 +395,10 @@
     gap: var(--space-2, 8px);
   }
 
+  .historyItemBattle {
+    padding: var(--space-3, 12px) 0;
+  }
+
   .roundInfo {
     flex: 0 0 auto;
   }
@@ -223,6 +407,18 @@
     flex: 1 1 100%;
     text-align: left;
     order: 3;
+    padding-left: calc(var(--space-6, 24px) + var(--space-2, 8px));
+  }
+
+  .historyItemBattle .roleName {
+    flex: 1;
+    padding-left: 0;
+    order: initial;
+  }
+
+  .battleRoundDetails {
+    order: 3;
+    flex: 1 1 100%;
     padding-left: calc(var(--space-6, 24px) + var(--space-2, 8px));
   }
 
