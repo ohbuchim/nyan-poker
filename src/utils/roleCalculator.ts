@@ -194,3 +194,33 @@ export function determineWinner(
   // 同ポイントは存在しないはずだが、念のためdraw
   return 'draw';
 }
+
+/**
+ * 対戦結果に基づくスコア変動を計算
+ *
+ * - 勝利: 自分の役ポイントを獲得
+ * - 敗北: 相手の役ポイントをマイナス
+ * - 引き分け: ポイント増減なし
+ *
+ * @param result - 勝敗結果
+ * @param playerRole - プレイヤーの役
+ * @param dealerRole - ディーラーの役
+ * @returns スコア変動値（正: 獲得、負: 減少、0: 変動なし）
+ */
+export function calculateScoreChange(
+  result: 'win' | 'lose' | 'draw',
+  playerRole: Role,
+  dealerRole: Role
+): number {
+  switch (result) {
+    case 'win':
+      // 勝者は自分の役ポイントを獲得
+      return playerRole.points;
+    case 'lose':
+      // 敗者は勝者（相手）の役ポイント分がマイナス
+      return -dealerRole.points;
+    case 'draw':
+      // 引き分けは変動なし
+      return 0;
+  }
+}

@@ -1,0 +1,100 @@
+/* ==================== */
+/* Battle Role Box */
+/* ==================== */
+
+.container {
+  flex: 0 1 auto;
+  min-width: 150px;
+  background: var(--color-bg-light, #3d3a35);
+  border-radius: 12px;
+  padding: 12px 20px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+/* Show state (role revealed) */
+.container--show .points {
+  opacity: 1;
+}
+
+/* Winner styling */
+.container--winner {
+  border-color: var(--color-success, #7eb87e);
+  box-shadow: 0 0 20px rgba(126, 184, 126, 0.3);
+}
+
+/* Loser styling */
+.container--loser {
+  opacity: 0.6;
+}
+
+/* Draw styling */
+.container--draw {
+  border-color: var(--color-text-muted, #a89f94);
+}
+
+/* Label row */
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text-muted, #a89f94);
+  margin-bottom: 8px;
+}
+
+.icon {
+  font-size: 16px;
+}
+
+/* Result row */
+.result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 28px;
+}
+
+/* Role name */
+.role-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary, #d4a574);
+  white-space: nowrap;
+}
+
+.role-name--no-pair {
+  color: var(--color-text-muted, #a89f94);
+}
+
+/* Points display */
+.points {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text, #f5f0e8);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Responsive styles */
+@media (max-width: 767px) {
+  .container {
+    min-width: 120px;
+    padding: 10px 16px;
+  }
+
+  .label {
+    font-size: 12px;
+  }
+
+  .role-name {
+    font-size: 16px;
+  }
+
+  .points {
+    font-size: 14px;
+  }
+}

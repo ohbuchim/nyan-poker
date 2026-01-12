@@ -1,0 +1,123 @@
+/* ==================== */
+/* Battle Result Overlay */
+/* ==================== */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.content {
+  text-align: center;
+  padding: 40px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Result text */
+.result-text {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  animation: popIn 0.5s ease-out;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.result-text--win {
+  color: var(--color-success, #7eb87e);
+}
+
+.result-text--lose {
+  color: var(--color-danger, #c46b6b);
+}
+
+.result-text--draw {
+  color: var(--color-text-muted, #a89f94);
+}
+
+/* Role name */
+.result-role {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-primary, #d4a574);
+  margin: 0 0 16px 0;
+}
+
+/* Points display */
+.result-points {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 32px 0;
+}
+
+.result-points--positive {
+  color: var(--color-success, #7eb87e);
+}
+
+.result-points--negative {
+  color: var(--color-danger, #c46b6b);
+}
+
+.result-points--neutral {
+  color: var(--color-text-muted, #a89f94);
+}
+
+/* Responsive styles */
+@media (max-width: 767px) {
+  .content {
+    padding: 24px;
+  }
+
+  .result-text {
+    font-size: 36px;
+  }
+
+  .result-role {
+    font-size: 20px;
+  }
+
+  .result-points {
+    font-size: 20px;
+  }
+}
