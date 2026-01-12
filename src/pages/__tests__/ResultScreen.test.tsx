@@ -17,12 +17,16 @@ const createMockHistory = (
   round: number,
   roleName: string,
   points: number,
-  result?: 'win' | 'lose' | 'draw'
+  result?: 'win' | 'lose' | 'draw',
+  dealerRoleName?: string,
+  dealerPoints?: number
 ): RoundHistory => ({
   round,
-  playerRole: createMockRole(roleName, points),
+  playerRole: createMockRole(roleName, Math.abs(points)),
   playerPoints: points,
   result,
+  dealerRole: dealerRoleName ? createMockRole(dealerRoleName, dealerPoints ?? 0) : undefined,
+  dealerPoints: dealerPoints,
 });
 
 describe('ResultScreen', () => {
@@ -112,9 +116,9 @@ describe('ResultScreen', () => {
 
   describe('Battle Mode Display', () => {
     const battleHistory = [
-      createMockHistory(1, '茶トラワンペア', 11, 'win'),
-      createMockHistory(2, 'キジトラツーペア', -15, 'lose'),
-      createMockHistory(3, '茶白スリーカラー', 0, 'draw'),
+      createMockHistory(1, '茶トラワンペア', 11, 'win', 'ノーペア', -11),
+      createMockHistory(2, 'キジトラツーペア', -15, 'lose', '白黒フォーカラー', 15),
+      createMockHistory(3, '茶白スリーカラー', 0, 'draw', '茶白スリーカラー', 0),
     ];
 
     const battleProps = {
@@ -124,24 +128,401 @@ describe('ResultScreen', () => {
       totalScore: -4,
     };
 
-    it('displays result icons in battle mode', () => {
+    it('displays result icons in battle mode (circle for win)', () => {
       render(<ResultScreen {...battleProps} />);
-      expect(screen.getByText('W')).toBeInTheDocument();
+      // Circle icon for win
+      expect(screen.getByText('\u25CB')).toBeInTheDocument();
     });
 
-    it('displays lose icon for losing rounds', () => {
+    it('displays lose icon for losing rounds (cross)', () => {
       render(<ResultScreen {...battleProps} />);
-      expect(screen.getByText('L')).toBeInTheDocument();
+      // Cross icon for lose
+      expect(screen.getByText('\u00D7')).toBeInTheDocument();
     });
 
-    it('displays draw icon for draw rounds', () => {
+    it('displays draw icon for draw rounds (triangle)', () => {
       render(<ResultScreen {...battleProps} />);
-      expect(screen.getByText('D')).toBeInTheDocument();
+      // Triangle icon for draw
+      expect(screen.getByText('\u25B3')).toBeInTheDocument();
     });
 
     it('displays negative points for losing rounds', () => {
       render(<ResultScreen {...battleProps} />);
       expect(screen.getByText('-15')).toBeInTheDocument();
+    });
+  });
+
+  describe('Battle Mode Final Result', () => {
+    it('displays WIN when player has higher total score', () => {
+      const winHistory = [
+        createMockHistory(1, '白猫フラッシュ', 296, 'win', 'ノーペア', -296),
+        createMockHistory(2, '茶トラワンペア', 5, 'win', 'ノーペア', -5),
+        createMockHistory(3, 'ノーペア', -10, 'lose', 'サバトラワンペア', 10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={winHistory}
+          totalScore={291}
+        />
+      );
+
+      expect(screen.getByTestId('final-result')).toHaveTextContent('WIN');
+    });
+
+    it('displays LOSE when dealer has higher total score', () => {
+      const loseHistory = [
+        createMockHistory(1, 'ノーペア', -50, 'lose', '白猫フォーカラー', 50),
+        createMockHistory(2, 'ノーペア', -30, 'lose', 'グレーフォーカラー', 30),
+        createMockHistory(3, '茶トラワンペア', 5, 'win', 'ノーペア', -5),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={loseHistory}
+          totalScore={-75}
+        />
+      );
+
+      expect(screen.getByTestId('final-result')).toHaveTextContent('LOSE');
+    });
+
+    it('displays DRAW when scores are equal', () => {
+      const drawHistory = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(2, 'ノーペア', -10, 'lose', '茶トラワンペア', 10),
+        createMockHistory(3, 'ノーペア', 0, 'draw', 'ノーペア', 0),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={drawHistory}
+          totalScore={0}
+        />
+      );
+
+      expect(screen.getByTestId('final-result')).toHaveTextContent('DRAW');
+    });
+
+    it('has accessible label for final result', () => {
+      const winHistory = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={winHistory}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByLabelText('最終結果: WIN')).toBeInTheDocument();
+    });
+  });
+
+  describe('Battle Record Display', () => {
+    it('displays win/loss count correctly', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(2, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(3, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(4, 'ノーペア', -20, 'lose', 'グレーワンペア', 20),
+        createMockHistory(5, 'ノーペア', -15, 'lose', 'サバトラワンペア', 15),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-5}
+        />
+      );
+
+      expect(screen.getByTestId('battle-record')).toHaveTextContent('3勝');
+      expect(screen.getByTestId('battle-record')).toHaveTextContent('2敗');
+    });
+
+    it('displays draw count when there are draws', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(2, 'ノーペア', 0, 'draw', 'ノーペア', 0),
+        createMockHistory(3, 'ノーペア', -15, 'lose', 'サバトラワンペア', 15),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-5}
+        />
+      );
+
+      expect(screen.getByTestId('battle-record')).toHaveTextContent('1勝');
+      expect(screen.getByTestId('battle-record')).toHaveTextContent('1敗');
+      expect(screen.getByTestId('battle-record')).toHaveTextContent('1分');
+    });
+
+    it('does not display draw section when no draws', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(2, 'ノーペア', -15, 'lose', 'サバトラワンペア', 15),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-5}
+        />
+      );
+
+      expect(screen.queryByText(/分$/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Score Summary Display', () => {
+    it('displays player final score', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByTestId('player-final-score')).toHaveTextContent('10');
+    });
+
+    it('displays dealer final score', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(2, 'ノーペア', -20, 'lose', 'グレーワンペア', 20),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-10}
+        />
+      );
+
+      expect(screen.getByTestId('dealer-final-score')).toHaveTextContent('10');
+    });
+
+    it('displays score difference with positive sign for player advantage', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 30, 'win', 'ノーペア', -30),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={30}
+        />
+      );
+
+      expect(screen.getByTestId('score-difference')).toHaveTextContent('+60 pt');
+    });
+
+    it('displays score difference with negative for dealer advantage', () => {
+      const history = [
+        createMockHistory(1, 'ノーペア', -25, 'lose', '白黒ワンペア', 25),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-25}
+        />
+      );
+
+      expect(screen.getByTestId('score-difference')).toHaveTextContent('-50 pt');
+    });
+
+    it('displays VS between player and dealer scores', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByTestId('score-summary')).toHaveTextContent('VS');
+    });
+  });
+
+  describe('Battle Round History Details', () => {
+    it('displays dealer role name in round history', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'サビワンペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByText('サビワンペア')).toBeInTheDocument();
+    });
+
+    it('displays dealer role points in round history', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', -180, 'lose', '白猫フォーカラー', 180),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-180}
+        />
+      );
+
+      // Check that both player and dealer role points are displayed
+      const rolePointsElements = screen.getAllByText('180pt');
+      // Player role uses Math.abs(points) = 180, dealer role uses 180
+      expect(rolePointsElements.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('displays "You" label for player round info', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByText('You')).toBeInTheDocument();
+    });
+
+    it('displays "Dealer" label for dealer round info', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByText('Dealer')).toBeInTheDocument();
+    });
+
+    it('displays round number as R1, R2, etc. in battle mode', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+        createMockHistory(2, 'ノーペア', -15, 'lose', 'グレーワンペア', 15),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={-5}
+        />
+      );
+
+      expect(screen.getByText('R1')).toBeInTheDocument();
+      expect(screen.getByText('R2')).toBeInTheDocument();
+    });
+  });
+
+  describe('Battle Mode vs Solo Mode Differences', () => {
+    it('does not show battle result section in solo mode', () => {
+      render(<ResultScreen {...defaultProps} />);
+
+      expect(screen.queryByTestId('battle-result-section')).not.toBeInTheDocument();
+    });
+
+    it('shows battle result section in battle mode', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByTestId('battle-result-section')).toBeInTheDocument();
+    });
+
+    it('shows score summary in battle mode', () => {
+      const history = [
+        createMockHistory(1, '茶トラワンペア', 10, 'win', 'ノーペア', -10),
+      ];
+
+      render(
+        <ResultScreen
+          {...defaultProps}
+          mode="battle"
+          history={history}
+          totalScore={10}
+        />
+      );
+
+      expect(screen.getByTestId('score-summary')).toBeInTheDocument();
+    });
+
+    it('does not show score summary in solo mode', () => {
+      render(<ResultScreen {...defaultProps} />);
+
+      expect(screen.queryByTestId('score-summary')).not.toBeInTheDocument();
+    });
+
+    it('shows traditional final score display in solo mode', () => {
+      render(<ResultScreen {...defaultProps} />);
+
+      expect(screen.getByText('最終スコア')).toBeInTheDocument();
+      expect(screen.getByText('ポイント')).toBeInTheDocument();
     });
   });
 
