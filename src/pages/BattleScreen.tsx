@@ -19,7 +19,8 @@ const TOTAL_ROUNDS = 5;
 const HAND_SIZE = 5;
 const EXCHANGE_ANIMATION_DELAY = 400;
 const DEALER_EXCHANGE_DELAY = 800;
-const REVEAL_DELAY = 500;
+/** Delay before role highlight starts after exchange completes (ms) */
+const ROLE_HIGHLIGHT_DELAY = 300;
 const DEALER_ICON = '\uD83C\uDFA9'; // Top hat emoji
 const PLAYER_ICON = '\uD83D\uDC31'; // Cat emoji
 
@@ -122,6 +123,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const revealRoles = useCallback(() => {
     setPhase('revealing');
 
+    // Wait for ROLE_HIGHLIGHT_DELAY before showing role highlight
     setTimeout(() => {
       // Calculate roles
       const pRole = calculateRole(playerHand);
@@ -159,7 +161,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       setPhase('result');
       setShowResultOverlay(true);
-    }, REVEAL_DELAY);
+    }, ROLE_HIGHLIGHT_DELAY);
   }, [playerHand, dealerHand, round]);
 
   const handleExchange = useCallback(() => {
