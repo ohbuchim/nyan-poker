@@ -154,7 +154,9 @@ describe('BattleScreen', () => {
         vi.advanceTimersByTime(600);
       });
 
-      expect(screen.getByText(/0/)).toBeInTheDocument();
+      // Score display shows 0, there may be multiple 0s
+      const zeroElements = screen.getAllByText('0');
+      expect(zeroElements.length).toBeGreaterThan(0);
     });
   });
 
@@ -253,7 +255,9 @@ describe('BattleScreen', () => {
         vi.advanceTimersByTime(3000);
       });
 
-      expect(screen.getByText(/pt/)).toBeInTheDocument();
+      // Multiple elements may contain "pt", so we use getAllByText
+      const ptElements = screen.getAllByText(/pt/);
+      expect(ptElements.length).toBeGreaterThan(0);
     });
   });
 
