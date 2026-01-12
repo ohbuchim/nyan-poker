@@ -1,0 +1,140 @@
+/* Modal Overlay */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-4, 16px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Container */
+.modal {
+  background: var(--color-bg-light, #3d3a35);
+  border-radius: var(--radius-xl, 20px);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.4));
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6, 24px);
+  border-bottom: 1px solid var(--color-card-bg, #4a4540);
+}
+
+.title {
+  font-size: var(--font-size-xl, 24px);
+  font-weight: 600;
+  color: var(--color-primary, #d4a574);
+  margin: 0;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--color-card-bg, #4a4540);
+  color: var(--color-text, #f5f0e8);
+  border-radius: var(--radius-full, 9999px);
+  font-size: var(--font-size-xl, 24px);
+  line-height: 1;
+  cursor: pointer;
+  transition: all var(--transition-fast, 0.2s);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.closeButton:hover {
+  background: var(--color-bg, #2d2a26);
+  transform: rotate(90deg);
+}
+
+.closeButton:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+/* Modal Body */
+.body {
+  padding: var(--space-6, 24px);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Scrollbar styling */
+.body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.body::-webkit-scrollbar-track {
+  background: var(--color-bg, #2d2a26);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary, #d4a574);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .overlay {
+    padding: var(--space-2, 8px);
+  }
+
+  .modal {
+    max-height: 95vh;
+  }
+
+  .header {
+    padding: var(--space-4, 16px);
+  }
+
+  .title {
+    font-size: var(--font-size-lg, 20px);
+  }
+
+  .body {
+    padding: var(--space-4, 16px);
+  }
+}
