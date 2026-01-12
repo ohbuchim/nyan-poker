@@ -1,0 +1,257 @@
+/* ==================== */
+/* Card Base */
+/* ==================== */
+
+.card {
+  width: var(--card-width, 80px);
+  height: var(--card-height, 107px);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.3));
+  border: 3px solid transparent;
+  transition:
+    transform var(--transition-normal, 0.3s),
+    border-color var(--transition-normal, 0.3s),
+    box-shadow var(--transition-normal, 0.3s),
+    opacity var(--transition-normal, 0.3s),
+    filter var(--transition-normal, 0.3s);
+  background: var(--color-card-bg, #4a4540);
+}
+
+/* Responsive sizes */
+@media (min-width: 768px) {
+  .card {
+    width: 120px;
+    height: 160px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card {
+    width: var(--card-width-pc, 150px);
+    height: var(--card-height-pc, 200px);
+  }
+}
+
+/* ==================== */
+/* Interactive States */
+/* ==================== */
+
+.card--clickable {
+  cursor: pointer;
+}
+
+.card--clickable:hover {
+  transform: scale(1.05);
+}
+
+.card--clickable:focus-visible {
+  outline: 3px solid var(--color-primary, #d4a574);
+  outline-offset: 2px;
+}
+
+.card--disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ==================== */
+/* Selected State */
+/* ==================== */
+
+.card--selected {
+  transform: translateY(-8px);
+  border-color: var(--color-primary, #d4a574);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.4));
+  animation: cardSelectPulse 0.6s ease-out;
+}
+
+/* PC: 8px up, SP: 6px up */
+@media (max-width: 767px) {
+  .card--selected {
+    transform: translateY(-6px);
+  }
+}
+
+.card--selected::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(212, 165, 116, 0.2);
+  pointer-events: none;
+}
+
+@keyframes cardSelectPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 165, 116, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(212, 165, 116, 0.3);
+  }
+  100% {
+    box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.4));
+  }
+}
+
+/* ==================== */
+/* Role Matching States */
+/* ==================== */
+
+/* Card is part of winning hand - glowing effect */
+.card--matching {
+  border-color: var(--color-primary, #d4a574);
+  animation: cardGlow 1s ease-in-out infinite;
+}
+
+@keyframes cardGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(212, 165, 116, 1);
+  }
+}
+
+/* Card is not part of winning hand - dimmed */
+.card--not-matching {
+  opacity: 0.5;
+  filter: grayscale(40%);
+}
+
+/* ==================== */
+/* Card Back */
+/* ==================== */
+
+.card--back {
+  background: linear-gradient(135deg, var(--color-card-bg, #4a4540) 0%, var(--color-bg, #2d2a26) 100%);
+}
+
+.card__back {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Paw print pattern background */
+.card__back::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(ellipse 12px 10px at 20% 25%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 4px at 14% 18%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 4px at 26% 18%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 3px at 12% 28%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 3px at 28% 28%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(ellipse 12px 10px at 70% 65%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 4px at 64% 58%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 4px at 76% 58%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 3px at 62% 68%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 3px at 78% 68%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(ellipse 10px 8px at 50% 45%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 3px at 45% 39%, var(--color-primary, #d4a574) 0%, transparent 70%),
+    radial-gradient(circle 3px at 55% 39%, var(--color-primary, #d4a574) 0%, transparent 70%);
+  opacity: 0.15;
+}
+
+.card__back-icon {
+  font-size: 40px;
+  opacity: 0.4;
+  filter: grayscale(100%);
+  z-index: 1;
+}
+
+.card__back-icon::before {
+  content: '\1F431'; /* Cat emoji */
+}
+
+@media (max-width: 767px) {
+  .card__back-icon {
+    font-size: 28px;
+  }
+}
+
+/* ==================== */
+/* Card Image */
+/* ==================== */
+
+.card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ==================== */
+/* Animations */
+/* ==================== */
+
+/* Deal animation - cards slide in from left */
+.card--deal {
+  animation: dealCard 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes dealCard {
+  from {
+    opacity: 0;
+    transform: translateX(-100px) rotate(-20deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+}
+
+/* Enter animation - new cards come from top after exchange */
+.card--enter {
+  animation: cardEnterFromTop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes cardEnterFromTop {
+  0% {
+    transform: translateY(-100px) scale(0.85);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  80% {
+    transform: translateY(5px) scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Exchange animation - cards go up and fade out */
+.card--exchange {
+  animation: cardExchangeOut 0.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes cardExchangeOut {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-30px) scale(1.02);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-80px) scale(0.9);
+    opacity: 0;
+  }
+}
