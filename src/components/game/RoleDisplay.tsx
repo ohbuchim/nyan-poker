@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Role } from '../../types';
 import styles from './RoleDisplay.module.css';
+
+/** Delay before role name pop-in starts (ms) */
+const ROLE_NAME_DELAY = 200;
 
 export interface RoleDisplayProps {
   role: Role | null;
@@ -8,6 +11,22 @@ export interface RoleDisplayProps {
 }
 
 export const RoleDisplay: React.FC<RoleDisplayProps> = ({ role, visible }) => {
+  const [showRole, setShowRole] = useState(false);
+
+  // Handle delayed role name display
+  useEffect(() => {
+    if (visible && role) {
+      // Reset first to trigger animation on role change
+      setShowRole(false);
+      const timer = setTimeout(() => {
+        setShowRole(true);
+      }, ROLE_NAME_DELAY);
+      return () => clearTimeout(timer);
+    } else {
+      setShowRole(false);
+    }
+  }, [visible, role]);
+
   const containerClasses = [
     styles.container,
     visible ? styles['container--visible'] : styles['container--hidden'],
@@ -21,10 +40,11 @@ export const RoleDisplay: React.FC<RoleDisplayProps> = ({ role, visible }) => {
   };
 
   const getRoleNameClass = () => {
+    const classes = [styles['role-name']];
     if (!role || role.type === 'noPair') {
-      return `${styles['role-name']} ${styles['role-name--no-pair']}`;
+      classes.push(styles['role-name--no-pair']);
     }
-    return styles['role-name'];
+    return classes.join(' ');
   };
 
   const formatPoints = (points: number): string => {
@@ -34,7 +54,7 @@ export const RoleDisplay: React.FC<RoleDisplayProps> = ({ role, visible }) => {
 
   return (
     <div className={containerClasses} aria-live="polite">
-      {role && visible && (
+      {role && visible && showRole && (
         <>
           <h2 className={getRoleNameClass()}>{role.name}</h2>
           <span className={getPointsClass()}>

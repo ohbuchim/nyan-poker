@@ -10,6 +10,8 @@ const MAX_SELECTABLE_CARDS = 3;
 const TOTAL_ROUNDS = 5;
 const HAND_SIZE = 5;
 const EXCHANGE_ANIMATION_DELAY = 400;
+/** Delay before role highlight starts after exchange completes (ms) */
+const ROLE_HIGHLIGHT_DELAY = 300;
 
 export interface GameScreenProps {
   onGameEnd: (finalScore: number, history: RoundHistory[]) => void;
@@ -120,6 +122,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   const revealRole = useCallback(() => {
     setPhase('revealing');
 
+    // Wait for ROLE_HIGHLIGHT_DELAY before showing role highlight
     setTimeout(() => {
       const role = calculateRole(hand.length === 5 ? hand : []);
       setCurrentRole(role);
@@ -132,7 +135,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
       setHistory((prev) => [...prev, roundHistory]);
       setScore((prev) => prev + role.points);
       setPhase('result');
-    }, 100);
+    }, ROLE_HIGHLIGHT_DELAY);
   }, [hand, round]);
 
   useEffect(() => {
