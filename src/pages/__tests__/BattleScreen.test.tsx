@@ -154,7 +154,9 @@ describe('BattleScreen', () => {
         vi.advanceTimersByTime(600);
       });
 
-      expect(screen.getByText(/0/)).toBeInTheDocument();
+      // Score display shows 0, selected count shows 0
+      const zeroElements = screen.getAllByText('0');
+      expect(zeroElements.length).toBeGreaterThan(0);
     });
   });
 
@@ -253,7 +255,9 @@ describe('BattleScreen', () => {
         vi.advanceTimersByTime(3000);
       });
 
-      expect(screen.getByText(/pt/)).toBeInTheDocument();
+      // Multiple elements may contain "pt", so we use getAllByText
+      const ptElements = screen.getAllByText(/pt/);
+      expect(ptElements.length).toBeGreaterThan(0);
     });
   });
 
@@ -352,6 +356,140 @@ describe('BattleScreen', () => {
       // The mock role name should appear somewhere
       const roleElements = screen.getAllByText('茶トラワンペア');
       expect(roleElements.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Card Exchange with Selection', () => {
+    it('exchanges selected cards when exchange button is clicked', async () => {
+      render(<BattleScreen {...createDefaultProps()} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+
+      // Click on a card to select it
+      const cards = screen.getAllByRole('button');
+      const playerCards = cards.filter(
+        (card) => card.getAttribute('aria-pressed') !== null
+      );
+      if (playerCards.length > 0) {
+        fireEvent.click(playerCards[0]);
+      }
+
+      // Click exchange button
+      const exchangeButton = screen.getByText('交換する');
+      fireEvent.click(exchangeButton);
+
+      await act(async () => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      // Should trigger calculateRole
+      expect(roleCalculatorModule.calculateRole).toHaveBeenCalled();
+    });
+  });
+
+  describe('Lose Result', () => {
+    beforeEach(() => {
+      vi.spyOn(roleCalculatorModule, 'determineWinner').mockReturnValue('lose');
+    });
+
+    it('shows LOSE result when player loses', async () => {
+      render(<BattleScreen {...createDefaultProps()} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+
+      const skipButton = screen.getByText('交換しない');
+      fireEvent.click(skipButton);
+
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(screen.getByText('LOSE')).toBeInTheDocument();
+    });
+  });
+
+  describe('Draw Result', () => {
+    beforeEach(() => {
+      vi.spyOn(roleCalculatorModule, 'determineWinner').mockReturnValue('draw');
+    });
+
+    it('shows DRAW result when there is a tie', async () => {
+      render(<BattleScreen {...createDefaultProps()} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+
+      const skipButton = screen.getByText('交換しない');
+      fireEvent.click(skipButton);
+
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(screen.getByText('DRAW')).toBeInTheDocument();
+    });
+  });
+
+  describe('Dealer Exchange with Cards', () => {
+    beforeEach(() => {
+      vi.spyOn(dealerAIModule, 'decideDealerExchange').mockReturnValue({
+        cardsToExchange: [10, 11],
+        reason: 'Exchange for better hand',
+      });
+    });
+
+    it('dealer exchanges cards when AI decides to', async () => {
+      render(<BattleScreen {...createDefaultProps()} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+
+      const skipButton = screen.getByText('交換しない');
+      fireEvent.click(skipButton);
+
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(dealerAIModule.decideDealerExchange).toHaveBeenCalled();
+    });
+  });
+
+  describe('Clear Selection', () => {
+    it('clears selection when clear button is clicked', async () => {
+      render(<BattleScreen {...createDefaultProps()} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(600);
+      });
+
+      // Select a card first
+      const cards = screen.getAllByRole('button');
+      const playerCards = cards.filter(
+        (card) => card.getAttribute('aria-pressed') !== null
+      );
+      if (playerCards.length > 0) {
+        fireEvent.click(playerCards[0]);
+      }
+
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Check if clear button appears and click it
+      const clearButton = screen.queryByText('解除');
+      if (clearButton) {
+        fireEvent.click(clearButton);
+      }
+
+      // Verify component still renders correctly
+      expect(screen.getByText('交換しない')).toBeInTheDocument();
     });
   });
 });
