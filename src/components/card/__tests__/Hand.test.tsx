@@ -247,6 +247,41 @@ describe('Hand', () => {
       const enterCards = container.querySelectorAll('[class*="card--enter"]');
       expect(allCards.length).toBeGreaterThan(enterCards.length);
     });
+
+    it('applies exchange animation to exchanging cards', () => {
+      const cards = createMockCards();
+      const { container } = render(<Hand cards={cards} exchangingCardIds={[0, 2]} />);
+
+      const exchangeCards = container.querySelectorAll('[class*="card--exchange"]');
+      expect(exchangeCards.length).toBe(2);
+    });
+
+    it('does not apply exchange animation to non-exchanging cards', () => {
+      const cards = createMockCards();
+      const { container } = render(<Hand cards={cards} exchangingCardIds={[0, 2]} />);
+
+      // Count all card elements (not wrappers)
+      const allCardElements = container.querySelectorAll('[class*="card_"]');
+      // Filter for those that don't have exchange animation
+      const exchangeCards = container.querySelectorAll('[class*="card--exchange"]');
+      // We have 5 cards total, 2 with exchange, so 3 without
+      expect(exchangeCards.length).toBe(2);
+      expect(allCardElements.length - exchangeCards.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('exchange animation takes priority over enter animation', () => {
+      const cards = createMockCards();
+      const { container } = render(
+        <Hand cards={cards} exchangingCardIds={[0]} newCardIds={[0]} />
+      );
+
+      const exchangeCards = container.querySelectorAll('[class*="card--exchange"]');
+      expect(exchangeCards.length).toBe(1);
+
+      // The same card should not have enter animation
+      const enterCards = container.querySelectorAll('[class*="card--enter"]');
+      expect(enterCards.length).toBe(0);
+    });
   });
 
   describe('Deal Animation Callback', () => {
