@@ -1,39 +1,68 @@
 import { useState, useCallback } from 'react';
-import { TitleScreen } from './pages';
+import { TitleScreen, GameScreen, ResultScreen } from './pages';
+import type { RoundHistory, GameMode } from './types';
 import './App.css';
 
-/** Application screen type */
 type AppScreen = 'title' | 'game' | 'battle' | 'result';
+
+interface ResultData {
+  totalScore: number;
+  history: RoundHistory[];
+  mode: GameMode;
+}
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('title');
+  const [resultData, setResultData] = useState<ResultData | null>(null);
+  const [currentMode, setCurrentMode] = useState<GameMode>('solo');
+  const [gameKey, setGameKey] = useState(0);
 
-  // Screen transition handlers
   const handleStartSolo = useCallback(() => {
+    setCurrentMode('solo');
+    setGameKey((prev) => prev + 1);
     setCurrentScreen('game');
   }, []);
 
   const handleStartBattle = useCallback(() => {
+    setCurrentMode('battle');
     setCurrentScreen('battle');
   }, []);
 
-  // Modal handlers (placeholder - will be implemented with modals)
+  const handleGameEnd = useCallback(
+    (finalScore: number, history: RoundHistory[]) => {
+      setResultData({
+        totalScore: finalScore,
+        history,
+        mode: currentMode,
+      });
+      setCurrentScreen('result');
+    },
+    [currentMode]
+  );
+
+  const handlePlayAgain = useCallback(() => {
+    setResultData(null);
+    setGameKey((prev) => prev + 1);
+    setCurrentScreen('game');
+  }, []);
+
+  const handleReturnToTitle = useCallback(() => {
+    setResultData(null);
+    setCurrentScreen('title');
+  }, []);
+
   const handleShowRules = useCallback(() => {
-    // TODO: Implement rules modal
     console.log('Show rules modal');
   }, []);
 
   const handleShowStats = useCallback(() => {
-    // TODO: Implement stats modal
     console.log('Show stats modal');
   }, []);
 
   const handleShowSettings = useCallback(() => {
-    // TODO: Implement settings modal
     console.log('Show settings modal');
   }, []);
 
-  // Render current screen
   const renderScreen = () => {
     switch (currentScreen) {
       case 'title':
@@ -47,14 +76,25 @@ function App() {
           />
         );
       case 'game':
-        // TODO: Implement GameScreen
-        return <div className="app">ゲーム画面（実装予定）</div>;
+        return (
+          <GameScreen
+            key={gameKey}
+            onGameEnd={handleGameEnd}
+            onRulesClick={handleShowRules}
+          />
+        );
       case 'battle':
-        // TODO: Implement BattleScreen
         return <div className="app">対戦画面（実装予定）</div>;
       case 'result':
-        // TODO: Integrate ResultScreen
-        return <div className="app">結果画面（実装予定）</div>;
+        return resultData ? (
+          <ResultScreen
+            totalScore={resultData.totalScore}
+            history={resultData.history}
+            mode={resultData.mode}
+            onPlayAgain={handlePlayAgain}
+            onReturnToTitle={handleReturnToTitle}
+          />
+        ) : null;
       default:
         return null;
     }
