@@ -18,6 +18,8 @@ export default defineConfig({
         '**/mockData',
         'src/main.tsx',
         'src/vite-env.d.ts',
+        '**/*.css',
+        '**/index.ts',
       ],
     },
   },

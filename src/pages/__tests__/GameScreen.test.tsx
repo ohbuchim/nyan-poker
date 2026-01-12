@@ -1,7 +1,28 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor, act, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { GameScreen } from '../GameScreen';
+import { SettingsProvider } from '../../context/SettingsContext';
+
+// Mock Howler to avoid audio issues in tests
+vi.mock('howler', () => ({
+  Howl: vi.fn().mockImplementation(() => ({
+    play: vi.fn(),
+    volume: vi.fn(),
+    unload: vi.fn(),
+  })),
+}));
+
+/** Wrapper component with SettingsProvider */
+function wrapper({ children }: { children: ReactNode }) {
+  return <SettingsProvider>{children}</SettingsProvider>;
+}
+
+/** Helper to render with SettingsProvider */
+function renderWithSettings(ui: React.ReactElement) {
+  return render(ui, { wrapper });
+}
 
 // Mock deck module to control card draws
 let cardIdCounter = 100;
@@ -45,7 +66,7 @@ describe('GameScreen', () => {
 
   describe('Initial rendering', () => {
     it('renders game header with round info', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       // Wait for dealing animation
       await act(async () => {
@@ -58,7 +79,7 @@ describe('GameScreen', () => {
     });
 
     it('renders player hand label', async () => {
-      render(<GameScreen {...defaultProps} />);
+      renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -68,7 +89,7 @@ describe('GameScreen', () => {
     });
 
     it('renders action buttons after dealing', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -86,7 +107,7 @@ describe('GameScreen', () => {
 
   describe('Card exchange phases', () => {
     it('starts in dealing phase then transitions to selecting', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       // Cards should have deal animation initially
       await act(async () => {
@@ -106,7 +127,7 @@ describe('GameScreen', () => {
     });
 
     it('shows exchanging card IDs when isExchanging prop is true', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -120,7 +141,7 @@ describe('GameScreen', () => {
 
   describe('Skip exchange flow', () => {
     it('transitions to result phase when skip is clicked', async () => {
-      render(<GameScreen {...defaultProps} />);
+      renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -141,7 +162,7 @@ describe('GameScreen', () => {
     });
 
     it('shows next round button after result', async () => {
-      render(<GameScreen {...defaultProps} />);
+      renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -163,7 +184,7 @@ describe('GameScreen', () => {
 
   describe('Exchange button loading state', () => {
     it('shows loading state on exchange button during exchange', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -181,7 +202,7 @@ describe('GameScreen', () => {
 
   describe('Multiple rounds', () => {
     it('tracks score across rounds', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       // Round 1
       await act(async () => {
@@ -212,7 +233,7 @@ describe('GameScreen', () => {
     });
 
     it('shows finish button on last round', async () => {
-      render(<GameScreen {...defaultProps} />);
+      renderWithSettings(<GameScreen {...defaultProps} />);
 
       // Play through 5 rounds
       for (let round = 1; round <= 5; round++) {
@@ -240,7 +261,7 @@ describe('GameScreen', () => {
 
     it('calls onGameEnd when finish button is clicked', async () => {
       const onGameEnd = vi.fn();
-      render(<GameScreen {...defaultProps} onGameEnd={onGameEnd} />);
+      renderWithSettings(<GameScreen {...defaultProps} onGameEnd={onGameEnd} />);
 
       // Play through 5 rounds
       for (let round = 1; round <= 5; round++) {
@@ -275,7 +296,7 @@ describe('GameScreen', () => {
 
   describe('Props passed to child components', () => {
     it('passes exchangingCardIds to Hand component', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -291,7 +312,7 @@ describe('GameScreen', () => {
     });
 
     it('passes isExchanging to ActionButtons component', async () => {
-      const { container } = render(<GameScreen {...defaultProps} />);
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -308,6 +329,77 @@ describe('GameScreen', () => {
       // Check that secondary button (skip) exists
       const secondaryButton = container.querySelector('[class*="btn--secondary"]');
       expect(secondaryButton).toBeInTheDocument();
+    });
+  });
+
+  describe('Card selection and exchange', () => {
+    it('renders card wrappers for selection', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get card wrappers
+      const cardWrappers = container.querySelectorAll('[class*="hand__card-wrapper"]');
+      expect(cardWrappers.length).toBe(5);
+    });
+
+    it('renders cards with proper structure', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Check that cards are rendered within the hand
+      const hand = container.querySelector('[class*="hand"]');
+      expect(hand).toBeInTheDocument();
+
+      const cards = hand?.querySelectorAll('[class*="card"]');
+      expect(cards?.length).toBeGreaterThan(0);
+    });
+
+    it('exchange button is disabled when no cards selected', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Exchange button should be disabled when no cards selected
+      const primaryButton = container.querySelector('[class*="btn--primary"]');
+      expect(primaryButton).toBeDisabled();
+    });
+
+    it('skip button is not disabled when no cards selected', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Skip button should be enabled
+      const secondaryButton = container.querySelector('[class*="btn--secondary"]');
+      expect(secondaryButton).not.toBeDisabled();
+    });
+  });
+
+  describe('Rules button', () => {
+    it('calls onRulesClick when rules button is clicked', async () => {
+      const onRulesClick = vi.fn();
+      renderWithSettings(<GameScreen {...defaultProps} onRulesClick={onRulesClick} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      const rulesButton = screen.getByRole('button', { name: '役一覧を表示' });
+      await act(async () => {
+        rulesButton.click();
+      });
+
+      expect(onRulesClick).toHaveBeenCalledTimes(1);
     });
   });
 });

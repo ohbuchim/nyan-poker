@@ -1,10 +1,31 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { BattleScreen } from '../BattleScreen';
+import { SettingsProvider } from '../../context/SettingsContext';
 import * as deckModule from '../../utils/deck';
 import * as roleCalculatorModule from '../../utils/roleCalculator';
 import * as dealerAIModule from '../../utils/dealerAI';
 import type { Card, Role } from '../../types';
+
+// Mock Howler to avoid audio issues in tests
+vi.mock('howler', () => ({
+  Howl: vi.fn().mockImplementation(() => ({
+    play: vi.fn(),
+    volume: vi.fn(),
+    unload: vi.fn(),
+  })),
+}));
+
+/** Wrapper component with SettingsProvider */
+function wrapper({ children }: { children: ReactNode }) {
+  return <SettingsProvider>{children}</SettingsProvider>;
+}
+
+/** Helper to render with SettingsProvider */
+function renderWithSettings(ui: React.ReactElement) {
+  return render(ui, { wrapper });
+}
 
 // Mock data
 const createMockCard = (id: number, color: number = 0, fur: number = 1): Card => ({
@@ -71,7 +92,7 @@ describe('BattleScreen', () => {
 
   describe('Basic Rendering', () => {
     it('renders the battle screen', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -81,7 +102,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays the game header with round info', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -92,7 +113,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays the score', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -102,7 +123,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays the VS text', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -113,7 +134,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays the dealer area', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -125,7 +146,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays the player hand area', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -137,7 +158,7 @@ describe('BattleScreen', () => {
 
   describe('Card Selection', () => {
     it('displays action buttons in selecting phase', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -148,7 +169,7 @@ describe('BattleScreen', () => {
     });
 
     it('shows selected count', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -162,7 +183,7 @@ describe('BattleScreen', () => {
 
   describe('Role Boxes', () => {
     it('displays dealer role box', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -174,7 +195,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays player role box', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -186,7 +207,7 @@ describe('BattleScreen', () => {
 
   describe('Exchange Flow', () => {
     it('calls skip exchange when skip button is clicked', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -205,7 +226,7 @@ describe('BattleScreen', () => {
     });
 
     it('triggers dealer exchange after player skip', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -224,7 +245,7 @@ describe('BattleScreen', () => {
 
   describe('Result Overlay', () => {
     it('shows result overlay after revealing', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -242,7 +263,7 @@ describe('BattleScreen', () => {
     });
 
     it('displays points change in result overlay', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -263,7 +284,7 @@ describe('BattleScreen', () => {
 
   describe('Round Progression', () => {
     it('increments round after next round button', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       // Wait for initial deal
       await act(async () => {
@@ -298,7 +319,7 @@ describe('BattleScreen', () => {
 
   describe('Game End', () => {
     it('renders correctly on initial load', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -312,7 +333,7 @@ describe('BattleScreen', () => {
   describe('Rules Click', () => {
     it('calls onRulesClick when rules button is clicked', async () => {
       const props = createDefaultProps();
-      render(<BattleScreen {...props} />);
+      renderWithSettings(<BattleScreen {...props} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -327,7 +348,7 @@ describe('BattleScreen', () => {
 
   describe('Dealer Cards Visibility', () => {
     it('dealer cards are hidden during selecting phase', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
@@ -339,7 +360,7 @@ describe('BattleScreen', () => {
     });
 
     it('dealer cards are revealed after round completes', async () => {
-      render(<BattleScreen {...createDefaultProps()} />);
+      renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 
       await act(async () => {
         vi.advanceTimersByTime(800);
