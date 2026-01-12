@@ -1,0 +1,149 @@
+/* ==================== */
+/* Battle Screen */
+/* ==================== */
+
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-5, 20px);
+  background: var(--color-bg, #2d2a26);
+}
+
+/* Battle roles header */
+.battle-roles-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 900px;
+}
+
+.battle-vs {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-accent, #c17f59);
+}
+
+/* Battle area */
+.battle-area {
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Dealer area */
+.dealer-area {
+  margin-bottom: 10px;
+}
+
+.dealer-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dealer-icon {
+  font-size: 16px;
+}
+
+.dealer-label {
+  font-size: 14px;
+  color: var(--color-text-muted, #a89f94);
+}
+
+.hand-area-compact {
+  background: var(--color-bg-light, #3d3a35);
+  border-radius: var(--radius-xl, 20px);
+  padding: 15px;
+  margin: 5px 0;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* VS row */
+.vs-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.vs-row-left {
+  flex: 1;
+}
+
+.vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vs-text {
+  background: var(--color-accent, #c17f59);
+  color: var(--color-text, #f5f0e8);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.vs-row-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Player area */
+.player-area {
+  margin-top: 10px;
+}
+
+.hand-area {
+  background: var(--color-bg-light, #3d3a35);
+  border-radius: var(--radius-xl, 20px);
+  padding: var(--space-8, 32px);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hand-label {
+  text-align: center;
+  font-size: var(--font-size-lg, 18px);
+  font-weight: 600;
+  color: var(--color-text, #f5f0e8);
+  margin-bottom: var(--space-4, 16px);
+}
+
+/* Responsive styles */
+@media (max-width: 767px) {
+  .battle-roles-header {
+    gap: 15px;
+  }
+
+  .battle-vs {
+    font-size: 16px;
+  }
+
+  .vs-row {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4, 16px);
+  }
+
+  .vs-row-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hand-area {
+    padding: var(--space-5, 20px) var(--space-4, 16px);
+  }
+
+  .hand-label {
+    font-size: var(--font-size-md, 16px);
+  }
+}

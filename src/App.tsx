@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { TitleScreen, GameScreen, ResultScreen } from './pages';
+import { TitleScreen, GameScreen, BattleScreen, ResultScreen } from './pages';
 import type { RoundHistory, GameMode } from './types';
 import './App.css';
 
@@ -84,7 +84,13 @@ function App() {
           />
         );
       case 'battle':
-        return <div className="app">対戦画面（実装予定）</div>;
+        return (
+          <BattleScreen
+            key={gameKey}
+            onGameEnd={handleGameEnd}
+            onRulesClick={handleShowRules}
+          />
+        );
       case 'result':
         return resultData ? (
           <ResultScreen
