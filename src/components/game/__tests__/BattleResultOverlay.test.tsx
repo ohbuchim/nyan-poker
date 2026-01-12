@@ -1,9 +1,34 @@
 // components/game/__tests__/BattleResultOverlay.test.tsx
 
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { BattleResultOverlay } from '../BattleResultOverlay';
 import type { Role } from '../../../types';
+
+// Mock canvas context
+const mockContext = {
+  save: vi.fn(),
+  restore: vi.fn(),
+  translate: vi.fn(),
+  rotate: vi.fn(),
+  fillText: vi.fn(),
+  fillRect: vi.fn(),
+  beginPath: vi.fn(),
+  arc: vi.fn(),
+  fill: vi.fn(),
+  moveTo: vi.fn(),
+  lineTo: vi.fn(),
+  closePath: vi.fn(),
+  clearRect: vi.fn(),
+  globalAlpha: 1,
+  fillStyle: '',
+  font: '',
+  textAlign: '',
+  textBaseline: '',
+};
+
+// Store the original getContext
+const originalGetContext = HTMLCanvasElement.prototype.getContext;
 
 /** テスト用の役生成ヘルパー */
 function createRole(name: string, points: number, type: string = 'onePair'): Role {
@@ -16,6 +41,25 @@ function createRole(name: string, points: number, type: string = 'onePair'): Rol
 }
 
 describe('BattleResultOverlay', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    // Mock canvas getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn(() => mockContext as unknown as CanvasRenderingContext2D);
+    // Reset all mock function calls
+    Object.values(mockContext).forEach((fn) => {
+      if (typeof fn === 'function') {
+        fn.mockClear?.();
+      }
+    });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    cleanup();
+    // Restore original getContext
+    HTMLCanvasElement.prototype.getContext = originalGetContext;
+  });
+
   describe('表示/非表示', () => {
     it('visible=falseの場合、何も表示されない', () => {
       const onClose = vi.fn();
@@ -303,6 +347,95 @@ describe('BattleResultOverlay', () => {
         />
       );
       expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
+    });
+  });
+
+  describe('紙吹雪エフェクト', () => {
+    it('勝利時に紙吹雪キャンバスが表示される', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.getByTestId('confetti-canvas')).toBeInTheDocument();
+    });
+
+    it('敗北時に紙吹雪は表示されない', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="lose"
+          playerRole={createRole('ワンペア', 5)}
+          dealerRole={createRole('サビフラッシュ', 300)}
+          pointsChange={-300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
+    });
+
+    it('引き分け時に紙吹雪は表示されない', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="draw"
+          playerRole={createRole('ノーペア', 0, 'noPair')}
+          dealerRole={createRole('ノーペア', 0, 'noPair')}
+          pointsChange={0}
+          onClose={onClose}
+        />
+      );
+      expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
+    });
+
+    it('visible=falseの時は紙吹雪は表示されない', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={false}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
+    });
+
+    it('勝利から敗北に変わると紙吹雪が消える', () => {
+      const onClose = vi.fn();
+      const { rerender } = render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.getByTestId('confetti-canvas')).toBeInTheDocument();
+
+      rerender(
+        <BattleResultOverlay
+          visible={true}
+          result="lose"
+          playerRole={createRole('ワンペア', 5)}
+          dealerRole={createRole('サビフラッシュ', 300)}
+          pointsChange={-300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
     });
   });
 });

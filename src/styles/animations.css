@@ -67,26 +67,29 @@
   animation: cardEnterFromTop 0.4s ease-out forwards;
 }
 
-/* 役成立時のカードハイライト */
-@keyframes cardGlow {
+/* 役成立時のカードハイライト - 光るエフェクトとスケールアニメーション */
+@keyframes cardGlowWithScale {
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(212, 165, 116, 0.6);
+    box-shadow: 0 0 0px rgba(255, 215, 0, 0);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 35px rgba(212, 165, 116, 1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    transform: scale(1.05);
   }
 }
 
 .card-wrapper.role-match .card {
   border-color: var(--color-primary);
-  animation: cardGlow 1s ease-in-out infinite;
+  animation: cardGlowWithScale 1.5s ease-in-out infinite;
 }
 
 /* 役非構成カードの暗転 */
 .card-wrapper.role-no-match .card {
   opacity: 0.5;
-  filter: grayscale(40%);
+  filter: grayscale(100%);
+  transition: opacity 0.3s ease-out, filter 0.3s ease-out;
 }
 
 /* 役名ポップイン */
