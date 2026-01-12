@@ -1,7 +1,12 @@
 // utils/__tests__/roleCalculator.test.ts
 
 import { describe, it, expect } from 'vitest';
-import { analyzeHand, calculateRole, determineWinner } from '../roleCalculator';
+import {
+  analyzeHand,
+  calculateRole,
+  determineWinner,
+  calculateScoreChange,
+} from '../roleCalculator';
 import type { Card } from '../../types/card';
 import type { Role } from '../../types/role';
 
@@ -473,5 +478,56 @@ describe('determineWinner', () => {
     const playerRole = createRole('onePair', 5);
     const dealerRole = createRole('onePair', 5);
     expect(determineWinner(playerRole, dealerRole)).toBe('draw');
+  });
+});
+
+describe('calculateScoreChange', () => {
+  const createRole = (type: Role['type'], points: number): Role => ({
+    type,
+    name: 'テスト役',
+    points,
+    matchingCardIds: [],
+  });
+
+  describe('勝利時', () => {
+    it('プレイヤーが勝利した場合、プレイヤーの役ポイントを返す', () => {
+      const playerRole = createRole('flush', 300);
+      const dealerRole = createRole('onePair', 5);
+      expect(calculateScoreChange('win', playerRole, dealerRole)).toBe(300);
+    });
+
+    it('低ポイント役で勝利した場合でも、自分の役ポイントを返す', () => {
+      const playerRole = createRole('onePair', 5);
+      const dealerRole = createRole('noPair', 0);
+      expect(calculateScoreChange('win', playerRole, dealerRole)).toBe(5);
+    });
+  });
+
+  describe('敗北時', () => {
+    it('プレイヤーが敗北した場合、ディーラーの役ポイントのマイナス値を返す', () => {
+      const playerRole = createRole('onePair', 5);
+      const dealerRole = createRole('flush', 300);
+      expect(calculateScoreChange('lose', playerRole, dealerRole)).toBe(-300);
+    });
+
+    it('低ポイント役に負けた場合、相手のポイント分だけマイナス', () => {
+      const playerRole = createRole('noPair', 0);
+      const dealerRole = createRole('onePair', 5);
+      expect(calculateScoreChange('lose', playerRole, dealerRole)).toBe(-5);
+    });
+  });
+
+  describe('引き分け時', () => {
+    it('引き分けの場合、0を返す', () => {
+      const playerRole = createRole('noPair', 0);
+      const dealerRole = createRole('noPair', 0);
+      expect(calculateScoreChange('draw', playerRole, dealerRole)).toBe(0);
+    });
+
+    it('同ポイント引き分けでも0を返す', () => {
+      const playerRole = createRole('onePair', 5);
+      const dealerRole = createRole('onePair', 5);
+      expect(calculateScoreChange('draw', playerRole, dealerRole)).toBe(0);
+    });
   });
 });
