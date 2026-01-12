@@ -16,6 +16,8 @@ export interface HandProps {
   selectedCardIds?: number[];
   /** Array of card IDs that are part of winning hand */
   matchingCardIds?: number[];
+  /** Array of card IDs that are being exchanged (for exit animation) */
+  exchangingCardIds?: number[];
   /** Callback when a card is clicked */
   onCardClick?: (cardId: number) => void;
   /** Disable all card interactions */
@@ -45,6 +47,7 @@ export const Hand: React.FC<HandProps> = ({
   showCards = true,
   selectedCardIds = [],
   matchingCardIds = [],
+  exchangingCardIds = [],
   onCardClick,
   disabled = false,
   isDealer = false,
@@ -84,10 +87,13 @@ export const Hand: React.FC<HandProps> = ({
         const isMatching = matchingCardIds.includes(card.id);
         const isNotMatching = hasMatchingCards && !isMatching;
         const isNew = newCardIds.includes(card.id);
+        const isExchanging = exchangingCardIds.includes(card.id);
 
         // Determine animation type for this specific card
         let cardAnimation: CardAnimationType = animationType;
-        if (isNew && animationType === 'none') {
+        if (isExchanging) {
+          cardAnimation = 'exchange';
+        } else if (isNew && animationType === 'none') {
           cardAnimation = 'enter';
         }
 

@@ -29,6 +29,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   const [currentRole, setCurrentRole] = useState<Role | null>(null);
   const [history, setHistory] = useState<RoundHistory[]>([]);
   const [newCardIds, setNewCardIds] = useState<number[]>([]);
+  const [exchangingCardIds, setExchangingCardIds] = useState<number[]>([]);
   const [usedCardIds, setUsedCardIds] = useState<number[]>([]);
 
   const dealHand = useCallback(() => {
@@ -36,6 +37,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     setSelectedCardIds([]);
     setCurrentRole(null);
     setNewCardIds([]);
+    setExchangingCardIds([]);
 
     const newHand = drawCards(HAND_SIZE, usedCardIds);
     setHand(newHand);
@@ -73,11 +75,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({
 
     setPhase('exchanging');
 
+    // Start exit animation for selected cards
+    setExchangingCardIds(selectedCardIds);
+
     const newCards = drawCards(selectedCardIds.length, usedCardIds);
     setUsedCardIds((prev) => [...prev, ...newCards.map((c) => c.id)]);
-    setNewCardIds(newCards.map((c) => c.id));
 
+    // Wait for exit animation (0.3s) before replacing cards
     setTimeout(() => {
+      // Replace cards in hand
       setHand((prev) => {
         const newHand = [...prev];
         let newCardIndex = 0;
@@ -90,9 +96,16 @@ export const GameScreen: React.FC<GameScreenProps> = ({
         return newHand;
       });
 
+      // Clear exchanging cards and set new card IDs for enter animation
+      setExchangingCardIds([]);
+      setNewCardIds(newCards.map((c) => c.id));
       setSelectedCardIds([]);
-      revealRole();
-    }, EXCHANGE_ANIMATION_DELAY);
+
+      // Wait for enter animation (0.4s) before revealing role
+      setTimeout(() => {
+        revealRole();
+      }, EXCHANGE_ANIMATION_DELAY);
+    }, 300); // Exit animation duration
   }, [phase, selectedCardIds, usedCardIds]);
 
   const handleSkipExchange = useCallback(() => {
@@ -154,6 +167,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
 
   const isInteractive = phase === 'selecting';
   const isExchanged = phase === 'result' || phase === 'revealing';
+  const isExchanging = phase === 'exchanging';
   const isLastRound = round === TOTAL_ROUNDS;
 
   const getAnimationType = () => {
@@ -177,6 +191,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           showCards={true}
           selectedCardIds={selectedCardIds}
           matchingCardIds={currentRole?.matchingCardIds || []}
+          exchangingCardIds={exchangingCardIds}
           onCardClick={isInteractive ? handleCardClick : undefined}
           disabled={!isInteractive}
           animationType={getAnimationType()}
@@ -195,6 +210,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
         exchanged={isExchanged}
         isRevealing={phase === 'revealing' && !currentRole}
         isLastRound={isLastRound}
+        isExchanging={isExchanging}
         onExchange={handleExchange}
         onSkipExchange={handleSkipExchange}
         onClearSelection={handleClearSelection}
