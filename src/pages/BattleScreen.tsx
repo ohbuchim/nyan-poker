@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { Card, Role, GamePhase, RoundHistory } from '../types';
 import { Hand } from '../components/card';
 import {
@@ -12,6 +12,7 @@ import type { BattleResult, BattleRoleBoxStatus } from '../components/game';
 import { drawCards } from '../utils/deck';
 import { calculateRole, determineWinner } from '../utils/roleCalculator';
 import { decideDealerExchange, executeDealerExchange } from '../utils/dealerAI';
+import { useSound } from '../hooks';
 import styles from './BattleScreen.module.css';
 
 const MAX_SELECTABLE_CARDS = 3;
@@ -49,6 +50,11 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const [roundResult, setRoundResult] = useState<BattleResult>('draw');
   const [pointsChange, setPointsChange] = useState(0);
 
+  // Sound hooks
+  const { playDeal, playFlip, playWin, playLose } = useSound();
+  const hasPlayedDealSoundRef = useRef(false);
+  const hasPlayedResultSoundRef = useRef(false);
+
   const dealHands = useCallback(() => {
     setPhase('dealing');
     setSelectedCardIds([]);
@@ -57,6 +63,8 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setNewCardIds([]);
     setExchangingCardIds([]);
     setShowResultOverlay(false);
+    hasPlayedDealSoundRef.current = false;
+    hasPlayedResultSoundRef.current = false;
 
     // Draw player's hand
     const newPlayerHand = drawCards(HAND_SIZE, usedCardIds);
@@ -84,6 +92,26 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       dealHands();
     }
   }, [phase, playerHand.length, dealHands]);
+
+  // Play deal sound when cards are dealt
+  useEffect(() => {
+    if (phase === 'dealing' && playerHand.length > 0 && !hasPlayedDealSoundRef.current) {
+      hasPlayedDealSoundRef.current = true;
+      playDeal();
+    }
+  }, [phase, playerHand.length, playDeal]);
+
+  // Play win/lose sound when result is shown
+  useEffect(() => {
+    if (showResultOverlay && !hasPlayedResultSoundRef.current) {
+      hasPlayedResultSoundRef.current = true;
+      if (roundResult === 'win') {
+        playWin();
+      } else if (roundResult === 'lose') {
+        playLose();
+      }
+    }
+  }, [showResultOverlay, roundResult, playWin, playLose]);
 
   const handleCardClick = useCallback(
     (cardId: number) => {
@@ -168,6 +196,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     if (phase !== 'selecting') return;
 
     setPhase('exchanging');
+    if (selectedCardIds.length > 0) {
+      playFlip(); // Play flip sound when exchanging cards
+    }
 
     if (selectedCardIds.length > 0) {
       // Start exit animation for selected cards
@@ -216,7 +247,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         }, DEALER_EXCHANGE_DELAY);
       }, EXCHANGE_ANIMATION_DELAY);
     }
-  }, [phase, selectedCardIds, usedCardIds, performDealerExchange, revealRoles]);
+  }, [phase, selectedCardIds, usedCardIds, performDealerExchange, revealRoles, playFlip]);
 
   const handleSkipExchange = useCallback(() => {
     if (phase !== 'selecting') return;

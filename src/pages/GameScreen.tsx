@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { Card, Role, GamePhase, RoundHistory } from '../types';
 import { Hand } from '../components/card';
 import { GameHeader, RoleDisplay, ActionButtons } from '../components/game';
 import { drawCards } from '../utils/deck';
 import { calculateRole } from '../utils/roleCalculator';
+import { useSound } from '../hooks';
 import styles from './GameScreen.module.css';
 
 const MAX_SELECTABLE_CARDS = 3;
@@ -33,12 +34,17 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   const [exchangingCardIds, setExchangingCardIds] = useState<number[]>([]);
   const [usedCardIds, setUsedCardIds] = useState<number[]>([]);
 
+  // Sound hooks
+  const { playDeal, playFlip } = useSound();
+  const hasPlayedDealSoundRef = useRef(false);
+
   const dealHand = useCallback(() => {
     setPhase('dealing');
     setSelectedCardIds([]);
     setCurrentRole(null);
     setNewCardIds([]);
     setExchangingCardIds([]);
+    hasPlayedDealSoundRef.current = false;
 
     const newHand = drawCards(HAND_SIZE, usedCardIds);
     setHand(newHand);
@@ -58,6 +64,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({
       dealHand();
     }
   }, [phase, hand.length, dealHand]);
+
+  // Play deal sound when cards are dealt
+  useEffect(() => {
+    if (phase === 'dealing' && hand.length > 0 && !hasPlayedDealSoundRef.current) {
+      hasPlayedDealSoundRef.current = true;
+      playDeal();
+    }
+  }, [phase, hand.length, playDeal]);
 
   const handleCardClick = useCallback(
     (cardId: number) => {
@@ -79,6 +93,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     if (phase !== 'selecting' || selectedCardIds.length === 0) return;
 
     setPhase('exchanging');
+    playFlip(); // Play flip sound when exchanging cards
 
     // Start exit animation for selected cards
     setExchangingCardIds(selectedCardIds);
@@ -111,7 +126,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
         revealRole();
       }, EXCHANGE_ANIMATION_DELAY);
     }, 300); // Exit animation duration
-  }, [phase, selectedCardIds, usedCardIds]);
+  }, [phase, selectedCardIds, usedCardIds, playFlip]);
 
   const handleSkipExchange = useCallback(() => {
     if (phase !== 'selecting') return;
