@@ -17,7 +17,6 @@ import styles from './BattleScreen.module.css';
 const MAX_SELECTABLE_CARDS = 3;
 const TOTAL_ROUNDS = 5;
 const HAND_SIZE = 5;
-const DEAL_ANIMATION_DELAY = 500;
 const EXCHANGE_ANIMATION_DELAY = 400;
 const DEALER_EXCHANGE_DELAY = 800;
 const REVEAL_DELAY = 500;
@@ -67,11 +66,15 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setPlayerHand(newPlayerHand);
     setDealerHand(newDealerHand);
     setUsedCardIds((prev) => [...prev, ...playerCardIds, ...dealerCardIds]);
-
-    setTimeout(() => {
-      setPhase('selecting');
-    }, DEAL_ANIMATION_DELAY);
+    // Phase transition to 'selecting' is now handled by onDealAnimationComplete
   }, [usedCardIds]);
+
+  // Handle deal animation completion
+  const handleDealAnimationComplete = useCallback(() => {
+    if (phase === 'dealing') {
+      setPhase('selecting');
+    }
+  }, [phase]);
 
   useEffect(() => {
     if (phase === 'dealing' && playerHand.length === 0) {
@@ -348,6 +351,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
               disabled={!isInteractive}
               animationType={getAnimationType()}
               newCardIds={newCardIds}
+              onDealAnimationComplete={handleDealAnimationComplete}
             />
           </div>
         </div>
