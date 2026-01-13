@@ -14,6 +14,9 @@
   gap: var(--space-2, 8px);
   position: relative;
   white-space: nowrap;
+  /* タッチ操作対応: 最小タップ領域確保 */
+  min-height: var(--min-tap-size, 44px);
+  min-width: var(--min-tap-size, 44px);
 }
 
 .btn:disabled {
@@ -169,4 +172,60 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ==================== */
+/* Touch Device Support */
+/* ==================== */
+
+/* タッチデバイスでのホバー状態フォールバック */
+@media (hover: none) {
+  .btn--primary:not(:disabled):hover {
+    transform: none;
+    box-shadow: var(--shadow-glow, 0 4px 12px rgba(212, 165, 116, 0.3));
+  }
+
+  .btn--primary:not(:disabled):active {
+    transform: scale(0.95);
+  }
+
+  .btn--footer:not(:disabled):hover {
+    transform: none;
+  }
+
+  .btn--footer:not(:disabled):active {
+    transform: scale(0.95);
+  }
+}
+
+/* ==================== */
+/* Responsive Styles */
+/* ==================== */
+
+/* スマートフォン (767px以下) */
+@media (max-width: 767px) {
+  .btn {
+    padding: var(--space-3, 12px) var(--space-5, 20px);
+    font-size: var(--font-size-base, 14px);
+  }
+
+  .btn--sm {
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    font-size: var(--font-size-sm, 13px);
+  }
+
+  .btn--lg {
+    padding: var(--space-4, 16px) var(--space-8, 32px);
+    font-size: var(--font-size-md, 16px);
+  }
+
+  .btn--footer {
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+  }
+
+  .btn-footer-icon {
+    width: var(--space-6, 24px);
+    height: var(--space-6, 24px);
+    font-size: var(--font-size-md, 16px);
+  }
 }

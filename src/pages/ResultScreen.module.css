@@ -367,8 +367,16 @@
   gap: var(--space-3, 12px);
 }
 
-/* Responsive adjustments */
+/* ==================== */
+/* Responsive Styles */
+/* ==================== */
+
+/* スマートフォン (767px以下) */
 @media (max-width: 767px) {
+  .container {
+    padding: var(--space-4, 16px);
+  }
+
   .scoreValue {
     font-size: var(--font-size-4xl, 56px);
   }
@@ -427,6 +435,7 @@
   }
 }
 
+/* Very small screens */
 @media (max-width: 400px) {
   .content {
     padding: 0 var(--space-2, 8px);
@@ -434,6 +443,48 @@
 
   .scoreValue {
     font-size: 48px;
+  }
+}
+
+/* タブレット (768px以上) */
+@media (min-width: 768px) {
+  .content {
+    max-width: 550px;
+  }
+
+  .scoreTitle {
+    font-size: var(--font-size-2xl, 32px);
+  }
+
+  .scoreValue {
+    font-size: 80px;
+  }
+
+  .historySection {
+    padding: var(--space-6, 24px);
+  }
+}
+
+/* PC (1024px以上) */
+@media (min-width: 1024px) {
+  .content {
+    max-width: 600px;
+  }
+
+  .scoreValue {
+    font-size: 96px;
+  }
+
+  .finalResult {
+    font-size: 56px;
+  }
+
+  .historySection {
+    padding: var(--space-8, 32px);
+  }
+
+  .historyItem {
+    padding: var(--space-4, 16px) 0;
   }
 }
 

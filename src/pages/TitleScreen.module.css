@@ -85,18 +85,26 @@
 .titleCats {
   display: flex;
   justify-content: center;
-  gap: var(--space-4, 16px);
+  gap: var(--card-gap, 8px);
   margin-bottom: var(--space-12, 48px);
 }
 
 .titleCatCard {
-  width: 80px;
-  height: 107px;
+  width: var(--card-width, 80px);
+  height: var(--card-height, 107px);
   border-radius: var(--radius-md, 8px);
   overflow: hidden;
   box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.3));
   transform: rotate(var(--rotation));
   transition: transform var(--transition-normal, 0.3s);
+}
+
+/* タップ領域を確保 (タッチデバイス向け) */
+@media (hover: none) {
+  .titleCatCard {
+    min-width: var(--min-tap-size, 44px);
+    min-height: var(--min-tap-size, 44px);
+  }
 }
 
 .titleCatCard:hover {
@@ -159,6 +167,10 @@
 
 /* Responsive - Mobile (max-width: 767px) */
 @media (max-width: 767px) {
+  .titleScreen {
+    padding: var(--space-4, 16px);
+  }
+
   .titleText {
     font-size: var(--font-size-xl, 24px);
     letter-spacing: 2px;
@@ -180,9 +192,17 @@
     right: -6px;
   }
 
-  .titleCatCard {
-    width: 60px;
-    height: 80px;
+  .titleSubtitle {
+    font-size: var(--font-size-sm, 13px);
+    margin-bottom: var(--space-6, 24px);
+  }
+
+  .titleCats {
+    margin-bottom: var(--space-8, 32px);
+  }
+
+  .titleMenu {
+    max-width: 100%;
   }
 
   .titleFooter {

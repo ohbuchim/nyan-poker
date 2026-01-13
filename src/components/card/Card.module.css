@@ -19,21 +19,6 @@
   background: var(--color-card-bg, #4a4540);
 }
 
-/* Responsive sizes */
-@media (min-width: 768px) {
-  .card {
-    width: 120px;
-    height: 160px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .card {
-    width: var(--card-width-pc, 150px);
-    height: var(--card-height-pc, 200px);
-  }
-}
-
 /* ==================== */
 /* Interactive States */
 /* ==================== */
@@ -248,4 +233,25 @@
     transform: translateY(-50px);
     opacity: 0;
   }
+}
+
+/* ==================== */
+/* Touch Device Support */
+/* ==================== */
+
+/* タッチデバイスでのホバー状態フォールバック */
+@media (hover: none) {
+  .card--clickable:hover {
+    transform: none;
+  }
+
+  .card--clickable:active {
+    transform: scale(0.98);
+  }
+}
+
+/* タップ領域の確保 */
+.card--clickable {
+  min-width: var(--min-tap-size, 44px);
+  min-height: var(--min-tap-size, 44px);
 }

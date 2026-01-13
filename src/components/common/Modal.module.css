@@ -116,14 +116,21 @@
   background: var(--color-primary, #d4a574);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ==================== */
+/* Responsive Styles */
+/* ==================== */
+
+/* スマートフォン (767px以下) - フルスクリーン風表示 */
+@media (max-width: 767px) {
   .overlay {
     padding: var(--space-2, 8px);
+    align-items: flex-end;
   }
 
   .modal {
     max-height: 95vh;
+    border-radius: var(--radius-xl, 20px) var(--radius-xl, 20px) 0 0;
+    max-width: 100%;
   }
 
   .header {
@@ -134,7 +141,56 @@
     font-size: var(--font-size-lg, 20px);
   }
 
+  .closeButton {
+    min-width: var(--min-tap-size, 44px);
+    min-height: var(--min-tap-size, 44px);
+  }
+
   .body {
     padding: var(--space-4, 16px);
+  }
+}
+
+/* Very small screens - 完全フルスクリーン */
+@media (max-width: 400px) {
+  .overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .modal {
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* タブレット (768px以上) */
+@media (min-width: 768px) {
+  .modal {
+    max-width: 550px;
+  }
+
+  .header {
+    padding: var(--space-5, 20px);
+  }
+
+  .body {
+    padding: var(--space-5, 20px);
+  }
+}
+
+/* PC (1024px以上) */
+@media (min-width: 1024px) {
+  .modal {
+    max-width: 600px;
+  }
+
+  .header {
+    padding: var(--space-6, 24px);
+  }
+
+  .body {
+    padding: var(--space-6, 24px);
   }
 }
