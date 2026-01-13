@@ -1,10 +1,11 @@
 // context/__tests__/SettingsContext.test.tsx
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { SettingsProvider, useSettings } from '../SettingsContext';
-import { STORAGE_KEY, CURRENT_VERSION, DEFAULT_SETTINGS } from '../../types';
+import { DEFAULT_SETTINGS } from '../../types';
+import { STORAGE_VERSION, STORAGE_KEYS } from '../../hooks';
 
 /** Wrapper コンポーネント */
 function wrapper({ children }: { children: ReactNode }) {
@@ -15,11 +16,6 @@ describe('SettingsContext', () => {
   beforeEach(() => {
     // ローカルストレージをクリア
     localStorage.clear();
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('初期状態', () => {
@@ -32,65 +28,45 @@ describe('SettingsContext', () => {
 
     it('ローカルストレージから設定を読み込む', () => {
       const savedData = {
-        settings: {
+        version: STORAGE_VERSION,
+        data: {
           soundEnabled: false,
           volume: 50,
         },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 0, wins: 0, losses: 0 },
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(savedData));
 
       const { result } = renderHook(() => useSettings(), { wrapper });
-
-      // useEffectを実行
-      act(() => {
-        vi.runAllTimers();
-      });
 
       expect(result.current.soundEnabled).toBe(false);
       expect(result.current.volume).toBe(50);
     });
 
     it('バージョンが異なる場合はデフォルト設定を使用', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const savedData = {
-        settings: {
+        version: 999, // 無効なバージョン
+        data: {
           soundEnabled: false,
           volume: 50,
         },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 0, wins: 0, losses: 0 },
-          roleAchievements: {},
-        },
-        version: 999,  // 無効なバージョン
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(savedData));
 
       const { result } = renderHook(() => useSettings(), { wrapper });
 
-      act(() => {
-        vi.runAllTimers();
-      });
-
       expect(result.current.soundEnabled).toBe(DEFAULT_SETTINGS.soundEnabled);
       expect(result.current.volume).toBe(DEFAULT_SETTINGS.volume);
+
+      consoleSpy.mockRestore();
     });
 
     it('無効なJSONの場合はデフォルト設定を使用', () => {
-      localStorage.setItem(STORAGE_KEY, 'invalid json');
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, 'invalid json');
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const { result } = renderHook(() => useSettings(), { wrapper });
-
-      act(() => {
-        vi.runAllTimers();
-      });
 
       expect(result.current.soundEnabled).toBe(DEFAULT_SETTINGS.soundEnabled);
       expect(result.current.volume).toBe(DEFAULT_SETTINGS.volume);
@@ -122,19 +98,11 @@ describe('SettingsContext', () => {
       const { result } = renderHook(() => useSettings(), { wrapper });
 
       act(() => {
-        vi.runAllTimers();
-      });
-
-      act(() => {
         result.current.toggleSound();
       });
 
-      act(() => {
-        vi.runAllTimers();
-      });
-
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      expect(saved.settings.soundEnabled).toBe(false);
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || '{}');
+      expect(saved.data.soundEnabled).toBe(false);
     });
   });
 
@@ -173,19 +141,11 @@ describe('SettingsContext', () => {
       const { result } = renderHook(() => useSettings(), { wrapper });
 
       act(() => {
-        vi.runAllTimers();
-      });
-
-      act(() => {
         result.current.setVolume(30);
       });
 
-      act(() => {
-        vi.runAllTimers();
-      });
-
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      expect(saved.settings.volume).toBe(30);
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || '{}');
+      expect(saved.data.volume).toBe(30);
     });
   });
 
@@ -201,42 +161,26 @@ describe('SettingsContext', () => {
     });
   });
 
-  describe('ローカルストレージへの保存', () => {
-    it('既存データがある場合は設定のみ更新される', () => {
-      const existingData = {
-        settings: {
-          soundEnabled: true,
-          volume: 80,
-        },
-        stats: {
-          solo: { playCount: 10, highScore: 100, totalScore: 500 },
-          battle: { playCount: 5, wins: 3, losses: 2 },
-          roleAchievements: { flush: 1 },
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(existingData));
-
+  describe('データ分離', () => {
+    it('設定と統計は別々のストレージキーで保存される', () => {
       const { result } = renderHook(() => useSettings(), { wrapper });
-
-      act(() => {
-        vi.runAllTimers();
-      });
 
       act(() => {
         result.current.setVolume(50);
       });
 
-      act(() => {
-        vi.runAllTimers();
-      });
+      // 設定キーにのみデータが保存される
+      const settingsData = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      expect(settingsData).not.toBeNull();
 
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      // 設定は更新される
-      expect(saved.settings.volume).toBe(50);
-      // 統計は保持される
-      expect(saved.stats.solo.playCount).toBe(10);
-      expect(saved.stats.roleAchievements.flush).toBe(1);
+      // 他の統計キーには影響しない
+      const soloStatsData = localStorage.getItem(STORAGE_KEYS.SOLO_STATS);
+      const battleStatsData = localStorage.getItem(STORAGE_KEYS.BATTLE_STATS);
+      const achievementsData = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
+
+      expect(soloStatsData).toBeNull();
+      expect(battleStatsData).toBeNull();
+      expect(achievementsData).toBeNull();
     });
   });
 });
