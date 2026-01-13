@@ -48,6 +48,7 @@
 /* Dealer card info is slightly smaller */
 .hand--dealer .hand__card-wrapper [class*='card-info'] {
   font-size: var(--font-size-sm, 13px);
+  line-height: var(--line-height-tight, 1.2);
   min-height: 32px;
 }
 
@@ -55,6 +56,7 @@
 @media (max-width: 767px) {
   .hand--dealer .hand__card-wrapper [class*='card-info'] {
     font-size: var(--font-size-xs, 11px);
+    line-height: var(--line-height-tight, 1.2);
     min-height: 24px;
   }
 }
@@ -63,6 +65,7 @@
 @media (min-width: 768px) {
   .hand--dealer .hand__card-wrapper [class*='card-info'] {
     font-size: var(--font-size-sm, 13px);
+    line-height: var(--line-height-tight, 1.2);
     min-height: 28px;
   }
 }
@@ -71,6 +74,7 @@
 @media (min-width: 1024px) {
   .hand--dealer .hand__card-wrapper [class*='card-info'] {
     font-size: var(--font-size-base, 14px);
+    line-height: var(--line-height-tight, 1.2);
     min-height: 36px;
   }
 }
