@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import styles from './Button.module.css';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'text' | 'icon' | 'footer';
@@ -23,7 +23,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
  * @param label - Label text (for footer buttons)
  * @param children - Button content
  */
-export const Button: React.FC<ButtonProps> = ({
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -33,7 +33,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   children,
   ...props
-}) => {
+}, ref) => {
   const classes = [
     styles.btn,
     styles[`btn--${variant}`],
@@ -46,11 +46,17 @@ export const Button: React.FC<ButtonProps> = ({
 
   const isDisabled = disabled || loading;
 
+  // Common aria attributes for accessibility
+  const ariaAttrs = {
+    'aria-disabled': isDisabled || undefined,
+    'aria-busy': loading || undefined,
+  };
+
   // Footer button with icon and label
   if (variant === 'footer') {
     return (
-      <button className={classes} disabled={isDisabled} {...props}>
-        {icon && <span className={styles['btn-footer-icon']}>{icon}</span>}
+      <button ref={ref} className={classes} disabled={isDisabled} {...ariaAttrs} {...props}>
+        {icon && <span className={styles['btn-footer-icon']} aria-hidden="true">{icon}</span>}
         {label && <span className={styles['btn-footer-label']}>{label}</span>}
       </button>
     );
@@ -59,23 +65,25 @@ export const Button: React.FC<ButtonProps> = ({
   // Icon button
   if (variant === 'icon') {
     return (
-      <button className={classes} disabled={isDisabled} {...props}>
-        {loading ? <span className={styles.spinner} /> : icon || children}
+      <button ref={ref} className={classes} disabled={isDisabled} {...ariaAttrs} {...props}>
+        {loading ? <span className={styles.spinner} aria-hidden="true" /> : icon || children}
       </button>
     );
   }
 
   // Regular button
   return (
-    <button className={classes} disabled={isDisabled} {...props}>
+    <button ref={ref} className={classes} disabled={isDisabled} {...ariaAttrs} {...props}>
       {loading ? (
-        <span className={styles.spinner} />
+        <span className={styles.spinner} aria-hidden="true" />
       ) : (
         <>
-          {icon && <span className={styles['btn-icon']}>{icon}</span>}
+          {icon && <span className={styles['btn-icon']} aria-hidden="true">{icon}</span>}
           {children}
         </>
       )}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';

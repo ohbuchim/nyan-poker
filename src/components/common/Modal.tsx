@@ -10,6 +10,8 @@ export interface ModalProps {
   closeOnOverlayClick?: boolean;
   closeOnEsc?: boolean;
   showCloseButton?: boolean;
+  /** ID for aria-describedby reference */
+  descriptionId?: string;
 }
 
 /**
@@ -38,8 +40,10 @@ export const Modal: React.FC<ModalProps> = ({
   closeOnOverlayClick = true,
   closeOnEsc = true,
   showCloseButton = true,
+  descriptionId,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
 
   // Handle ESC key
@@ -63,13 +67,16 @@ export const Modal: React.FC<ModalProps> = ({
     // Save current focused element
     previousActiveElement.current = document.activeElement as HTMLElement;
 
-    // Focus modal
-    const focusableElements = modalRef.current?.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-
-    if (focusableElements && focusableElements.length > 0) {
-      (focusableElements[0] as HTMLElement).focus();
+    // Focus close button if available, otherwise first focusable element
+    if (showCloseButton && closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    } else {
+      const focusableElements = modalRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusableElements && focusableElements.length > 0) {
+        (focusableElements[0] as HTMLElement).focus();
+      }
     }
 
     // Focus trap handler
@@ -107,7 +114,7 @@ export const Modal: React.FC<ModalProps> = ({
         previousActiveElement.current.focus();
       }
     };
-  }, [isOpen]);
+  }, [isOpen, showCloseButton]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -138,6 +145,7 @@ export const Modal: React.FC<ModalProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
+        aria-describedby={descriptionId}
       >
         {(title || showCloseButton) && (
           <div className={styles.header}>
@@ -148,6 +156,7 @@ export const Modal: React.FC<ModalProps> = ({
             )}
             {showCloseButton && (
               <button
+                ref={closeButtonRef}
                 className={styles.closeButton}
                 onClick={onClose}
                 aria-label="閉じる"

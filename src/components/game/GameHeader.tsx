@@ -37,7 +37,7 @@ export const GameHeader: React.FC<GameHeaderProps> = ({
         </div>
       </div>
 
-      <div className={styles['score-display']}>
+      <div className={styles['score-display']} aria-live="polite" aria-atomic="true">
         <span className={styles['score-label']}>スコア</span>
         <span className={styles['score-value']}>{score}</span>
       </div>

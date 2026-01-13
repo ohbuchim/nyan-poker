@@ -94,6 +94,16 @@ describe('Modal', () => {
       expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
       expect(screen.getByText('Test Modal')).toHaveAttribute('id', 'modal-title');
     });
+
+    it('has aria-describedby when descriptionId is provided', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} descriptionId="modal-description">
+          <p id="modal-description">This is the modal description</p>
+        </Modal>
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAttribute('aria-describedby', 'modal-description');
+    });
   });
 
   describe('Close behavior', () => {
