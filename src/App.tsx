@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { TitleScreen, GameScreen, BattleScreen, ResultScreen } from './pages';
-import { RulesModal, StatsModal } from './components/modals';
+import { RulesModal, StatsModal, SettingsModal } from './components/modals';
 import type { RoundHistory, GameMode } from './types';
 import './App.css';
 
@@ -19,6 +19,7 @@ function App() {
   const [gameKey, setGameKey] = useState(0);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const handleStartSolo = useCallback(() => {
     setCurrentMode('solo');
@@ -28,6 +29,7 @@ function App() {
 
   const handleStartBattle = useCallback(() => {
     setCurrentMode('battle');
+    setGameKey((prev) => prev + 1);
     setCurrentScreen('battle');
   }, []);
 
@@ -46,8 +48,12 @@ function App() {
   const handlePlayAgain = useCallback(() => {
     setResultData(null);
     setGameKey((prev) => prev + 1);
-    setCurrentScreen('game');
-  }, []);
+    if (currentMode === 'solo') {
+      setCurrentScreen('game');
+    } else {
+      setCurrentScreen('battle');
+    }
+  }, [currentMode]);
 
   const handleReturnToTitle = useCallback(() => {
     setResultData(null);
@@ -71,7 +77,11 @@ function App() {
   }, []);
 
   const handleShowSettings = useCallback(() => {
-    console.log('Show settings modal');
+    setIsSettingsModalOpen(true);
+  }, []);
+
+  const handleCloseSettings = useCallback(() => {
+    setIsSettingsModalOpen(false);
   }, []);
 
   const renderScreen = () => {
@@ -122,6 +132,7 @@ function App() {
       {renderScreen()}
       <RulesModal isOpen={isRulesModalOpen} onClose={handleCloseRulesModal} />
       <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStats} />
+      <SettingsModal isOpen={isSettingsModalOpen} onClose={handleCloseSettings} />
     </>
   );
 }
