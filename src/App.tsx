@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { TitleScreen, GameScreen, BattleScreen, ResultScreen } from './pages';
-import { RulesModal } from './components/modals';
+import { RulesModal, StatsModal } from './components/modals';
 import type { RoundHistory, GameMode } from './types';
 import './App.css';
 
@@ -18,6 +18,7 @@ function App() {
   const [currentMode, setCurrentMode] = useState<GameMode>('solo');
   const [gameKey, setGameKey] = useState(0);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
   const handleStartSolo = useCallback(() => {
     setCurrentMode('solo');
@@ -62,7 +63,11 @@ function App() {
   }, []);
 
   const handleShowStats = useCallback(() => {
-    console.log('Show stats modal');
+    setIsStatsModalOpen(true);
+  }, []);
+
+  const handleCloseStats = useCallback(() => {
+    setIsStatsModalOpen(false);
   }, []);
 
   const handleShowSettings = useCallback(() => {
@@ -116,6 +121,7 @@ function App() {
     <>
       {renderScreen()}
       <RulesModal isOpen={isRulesModalOpen} onClose={handleCloseRulesModal} />
+      <StatsModal isOpen={isStatsModalOpen} onClose={handleCloseStats} />
     </>
   );
 }
