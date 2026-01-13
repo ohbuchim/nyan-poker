@@ -104,11 +104,9 @@
   }
 }
 
-/* Card is not part of winning hand - dimmed */
+/* Card is not part of winning hand - no longer dimmed, kept colored */
 .card--not-matching {
-  opacity: 0.5;
-  filter: grayscale(100%);
-  transition: opacity 0.3s ease-out, filter 0.3s ease-out;
+  /* No visual changes - cards remain fully colored */
 }
 
 /* ==================== */
