@@ -1,0 +1,141 @@
+/* Rules Section */
+.rulesSection {
+  margin-bottom: var(--space-6, 24px);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-md, 16px);
+  color: var(--color-primary, #d4a574);
+  margin-bottom: var(--space-3, 12px);
+  line-height: var(--line-height-normal, 1.5);
+  font-weight: 600;
+}
+
+.sectionText {
+  font-size: var(--font-size-base, 14px);
+  line-height: var(--line-height-relaxed, 1.7);
+  color: var(--color-text-muted, #a89f94);
+}
+
+/* Accordion */
+.rulesAccordion {
+  margin-bottom: var(--space-4, 16px);
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+}
+
+.rulesAccordionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4, 16px);
+  cursor: pointer;
+  list-style: none;
+  transition: background var(--transition-fast, 0.2s);
+}
+
+.rulesAccordionHeader::-webkit-details-marker {
+  display: none;
+}
+
+.rulesAccordionHeader:hover {
+  background: var(--color-bg-light, #3d3a35);
+}
+
+.accordionTitle {
+  margin: 0;
+  font-size: var(--font-size-md, 16px);
+  color: var(--color-primary, #d4a574);
+  font-weight: 600;
+}
+
+.accordionIcon {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  transition: transform var(--transition-fast, 0.2s);
+  flex-shrink: 0;
+}
+
+.accordionIcon::before,
+.accordionIcon::after {
+  content: '';
+  position: absolute;
+  background: var(--color-text-muted, #a89f94);
+  border-radius: 2px;
+}
+
+.accordionIcon::before {
+  width: 12px;
+  height: 2px;
+  top: 9px;
+  left: 4px;
+}
+
+.accordionIcon::after {
+  width: 2px;
+  height: 12px;
+  top: 4px;
+  left: 9px;
+  transition: transform var(--transition-fast, 0.2s), opacity var(--transition-fast, 0.2s);
+}
+
+.rulesAccordion[open] .accordionIcon::after {
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.rulesAccordionContent {
+  padding: 0 var(--space-4, 16px) var(--space-4, 16px);
+}
+
+/* Role Table */
+.roleTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base, 14px);
+}
+
+.roleTable th,
+.roleTable td {
+  padding: var(--space-3, 12px);
+  text-align: left;
+  border-bottom: 1px solid var(--color-bg-light, #3d3a35);
+}
+
+.roleTable th {
+  color: var(--color-text-muted, #a89f94);
+  font-weight: 500;
+}
+
+.roleTable td:last-child {
+  text-align: right;
+  color: var(--color-primary, #d4a574);
+  font-weight: 600;
+}
+
+.roleTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Notes */
+.rulesNote {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-text-muted, #a89f94);
+  margin-bottom: var(--space-3, 12px);
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .roleTable th,
+  .roleTable td {
+    padding: var(--space-2, 8px);
+    font-size: var(--font-size-sm, 13px);
+  }
+
+  .accordionTitle {
+    font-size: var(--font-size-base, 14px);
+  }
+}
