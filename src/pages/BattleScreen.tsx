@@ -129,9 +129,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     [phase]
   );
 
-  const performDealerExchange = useCallback(() => {
+  const performDealerExchange = useCallback((currentDealerHand: Card[]): Card[] => {
     // AI decides which cards to exchange
-    const strategy = decideDealerExchange(dealerHand);
+    const strategy = decideDealerExchange(currentDealerHand);
 
     if (strategy.cardsToExchange.length > 0) {
       // Draw new cards for dealer
@@ -140,22 +140,24 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       // Execute the exchange
       const newDealerHand = executeDealerExchange(
-        dealerHand,
+        currentDealerHand,
         newCards,
         strategy.cardsToExchange
       );
       setDealerHand(newDealerHand);
+      return newDealerHand;
     }
-  }, [dealerHand, usedCardIds]);
+    return currentDealerHand;
+  }, [usedCardIds]);
 
-  const revealRoles = useCallback(() => {
+  const revealRoles = useCallback((currentPlayerHand: Card[], currentDealerHand: Card[]) => {
     setPhase('revealing');
 
     // Wait for ROLE_HIGHLIGHT_DELAY before showing role highlight
     setTimeout(() => {
-      // Calculate roles
-      const pRole = calculateRole(playerHand);
-      const dRole = calculateRole(dealerHand);
+      // Calculate roles using the passed-in hands to avoid stale closure
+      const pRole = calculateRole(currentPlayerHand);
+      const dRole = calculateRole(currentDealerHand);
 
       setPlayerRole(pRole);
       setDealerRole(dRole);
@@ -190,7 +192,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       setPhase('result');
       setShowResultOverlay(true);
     }, ROLE_HIGHLIGHT_DELAY);
-  }, [playerHand, dealerHand, round]);
+  }, [round]);
 
   const handleExchange = useCallback(() => {
     if (phase !== 'selecting') return;
@@ -208,19 +210,19 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       const newCards = drawCards(selectedCardIds.length, usedCardIds);
       setUsedCardIds((prev) => [...prev, ...newCards.map((c) => c.id)]);
 
+      // Calculate new player hand immediately (not relying on state)
+      const updatedPlayerHand = [...playerHand];
+      let newCardIndex = 0;
+      for (let i = 0; i < updatedPlayerHand.length; i++) {
+        if (selectedCardIds.includes(updatedPlayerHand[i].id)) {
+          updatedPlayerHand[i] = newCards[newCardIndex];
+          newCardIndex++;
+        }
+      }
+
       // Wait for exit animation (0.3s) before replacing cards
       setTimeout(() => {
-        setPlayerHand((prev) => {
-          const newHand = [...prev];
-          let newCardIndex = 0;
-          for (let i = 0; i < newHand.length; i++) {
-            if (selectedCardIds.includes(newHand[i].id)) {
-              newHand[i] = newCards[newCardIndex];
-              newCardIndex++;
-            }
-          }
-          return newHand;
-        });
+        setPlayerHand(updatedPlayerHand);
 
         // Clear exchanging cards and set new card IDs for enter animation
         setExchangingCardIds([]);
@@ -229,25 +231,25 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
         // Wait for enter animation (0.4s) before dealer exchange
         setTimeout(() => {
-          performDealerExchange();
+          const updatedDealerHand = performDealerExchange(dealerHand);
 
-          // Reveal roles after dealer exchange
+          // Reveal roles after dealer exchange with the actual updated hands
           setTimeout(() => {
-            revealRoles();
+            revealRoles(updatedPlayerHand, updatedDealerHand);
           }, DEALER_EXCHANGE_DELAY);
         }, EXCHANGE_ANIMATION_DELAY);
       }, 300); // Exit animation duration
     } else {
       // No cards selected, proceed to dealer exchange
       setTimeout(() => {
-        performDealerExchange();
+        const updatedDealerHand = performDealerExchange(dealerHand);
 
         setTimeout(() => {
-          revealRoles();
+          revealRoles(playerHand, updatedDealerHand);
         }, DEALER_EXCHANGE_DELAY);
       }, EXCHANGE_ANIMATION_DELAY);
     }
-  }, [phase, selectedCardIds, usedCardIds, performDealerExchange, revealRoles, playFlip]);
+  }, [phase, selectedCardIds, usedCardIds, playerHand, dealerHand, performDealerExchange, revealRoles, playFlip]);
 
   const handleSkipExchange = useCallback(() => {
     if (phase !== 'selecting') return;
@@ -257,13 +259,13 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
     // Dealer exchange
     setTimeout(() => {
-      performDealerExchange();
+      const updatedDealerHand = performDealerExchange(dealerHand);
 
       setTimeout(() => {
-        revealRoles();
+        revealRoles(playerHand, updatedDealerHand);
       }, DEALER_EXCHANGE_DELAY);
     }, EXCHANGE_ANIMATION_DELAY);
-  }, [phase, performDealerExchange, revealRoles]);
+  }, [phase, playerHand, dealerHand, performDealerExchange, revealRoles]);
 
   const handleClearSelection = useCallback(() => {
     setSelectedCardIds([]);
