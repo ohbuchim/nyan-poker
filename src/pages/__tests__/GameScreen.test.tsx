@@ -402,4 +402,156 @@ describe('GameScreen', () => {
       expect(onRulesClick).toHaveBeenCalledTimes(1);
     });
   });
+  describe('Card click and exchange flow', () => {
+    it('handles card selection and exchange', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get clickable card buttons (not wrapper divs)
+      const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
+      expect(cardButtons.length).toBe(5);
+
+      // Click first card to select
+      await act(async () => {
+        cardButtons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      // Exchange button should now be enabled
+      const exchangeButton = screen.getByText('交換する');
+      expect(exchangeButton).not.toBeDisabled();
+
+      // Click exchange
+      await act(async () => {
+        exchangeButton.click();
+      });
+
+      // Wait for exchange animation
+      await act(async () => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      // Should transition to result phase
+      await act(async () => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(screen.getByText('OnePair')).toBeInTheDocument();
+    });
+
+    it('limits card selection to maximum allowed', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get clickable card buttons
+      const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
+
+      // Click 4 cards (more than max of 3)
+      for (let i = 0; i < 4; i++) {
+        await act(async () => {
+          cardButtons[i].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        });
+      }
+
+      // Selected count should be limited to 3
+      const selectedCount = container.querySelector('[class*="selected-count"]');
+      expect(selectedCount?.textContent).toBe('3');
+    });
+
+    it('toggles card selection when clicking same card twice', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get clickable card buttons
+      const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
+
+      // Click first card to select
+      await act(async () => {
+        cardButtons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      let selectedCount = container.querySelector('[class*="selected-count"]');
+      expect(selectedCount?.textContent).toBe('1');
+
+      // Click same card again to deselect
+      await act(async () => {
+        cardButtons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      selectedCount = container.querySelector('[class*="selected-count"]');
+      expect(selectedCount?.textContent).toBe('0');
+    });
+
+    it('verifies that card exchange works correctly', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get clickable card buttons
+      const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
+      expect(cardButtons.length).toBe(5);
+
+      // Select multiple cards
+      await act(async () => {
+        cardButtons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+      await act(async () => {
+        cardButtons[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      // Exchange button should be enabled
+      const exchangeButton = screen.getByText('交換する');
+      expect(exchangeButton).not.toBeDisabled();
+
+      // Click exchange and wait for exchange animation + role reveal delay + role display delay
+      await act(async () => {
+        exchangeButton.click();
+      });
+      
+      // Wait for exit animation (300ms), enter animation (400ms), role highlight delay (300ms), role name delay (200ms)
+      await act(async () => {
+        vi.advanceTimersByTime(1500);
+      });
+
+      // Should show next round button (result phase reached)
+      expect(screen.getByText(/次のラウンドへ/)).toBeInTheDocument();
+    });
+
+    it('handles next round button when not last round', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Skip exchange to complete round 1
+      const skipButton = screen.getByText(/交換しない/);
+      await act(async () => {
+        skipButton.click();
+        vi.advanceTimersByTime(500);
+      });
+
+      // Click next round
+      const nextButton = screen.getByText(/次のラウンドへ/);
+      await act(async () => {
+        nextButton.click();
+        vi.advanceTimersByTime(1000);
+      });
+
+      // Should be on round 2
+      const roundBadge = container.querySelector('[class*="round-badge"]');
+      expect(roundBadge?.textContent).toContain('2');
+    });
+  });
+
 });
