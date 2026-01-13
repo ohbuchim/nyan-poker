@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import type { Card as CardType } from '../../types';
+import { COLOR_NAMES, FUR_NAMES } from '../../types';
 import styles from './Card.module.css';
 
 /** Animation types for card */
@@ -26,6 +27,8 @@ export interface CardProps {
   disabled?: boolean;
   /** Additional class name */
   className?: string;
+  /** Custom aria-label override */
+  'aria-label'?: string;
 }
 
 /**
@@ -49,6 +52,7 @@ export const Card: React.FC<CardProps> = ({
   onClick,
   disabled = false,
   className,
+  'aria-label': ariaLabelProp,
 }) => {
   const handleClick = useCallback(() => {
     if (!disabled && onClick) {
@@ -82,16 +86,28 @@ export const Card: React.FC<CardProps> = ({
 
   const style: React.CSSProperties = animationDelay > 0 ? { animationDelay: `${animationDelay}ms` } : {};
 
+  // Generate aria-label for accessibility
+  const colorName = COLOR_NAMES[card.color];
+  const furName = FUR_NAMES[card.fur];
+  const defaultAriaLabel = isBack
+    ? '裏向きのカード'
+    : `${colorName}の${furName}猫`;
+  const ariaLabel = ariaLabelProp || defaultAriaLabel;
+
+  // Use aria-selected for interactive cards (selection context)
+  const isInteractive = onClick && !disabled;
+
   return (
     <div
       className={cardClasses}
       style={style}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      role={onClick && !disabled ? 'button' : undefined}
-      tabIndex={onClick && !disabled ? 0 : undefined}
-      aria-pressed={onClick && !disabled ? isSelected : undefined}
-      aria-disabled={disabled}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-label={ariaLabel}
+      aria-selected={isInteractive ? isSelected : undefined}
+      aria-disabled={disabled || undefined}
     >
       {isBack ? (
         <div className={styles['card__back']}>
@@ -102,7 +118,7 @@ export const Card: React.FC<CardProps> = ({
       ) : (
         <img
           src={card.image}
-          alt={`Card ${card.id}`}
+          alt={`${colorName}の${furName}猫`}
           className={styles['card__image']}
           draggable={false}
         />

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import type { Role } from '../../types';
 import { Button } from '../common';
 import { Confetti } from '../effects';
@@ -34,6 +34,8 @@ export const BattleResultOverlay: React.FC<BattleResultOverlayProps> = ({
   onClose,
 }) => {
   const [showConfetti, setShowConfetti] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
 
   // Start confetti when visible and result is 'win'
   useEffect(() => {
@@ -43,6 +45,19 @@ export const BattleResultOverlay: React.FC<BattleResultOverlayProps> = ({
       setShowConfetti(false);
     }
   }, [visible, result]);
+
+  // Focus management: focus button when visible, restore focus when hidden
+  useEffect(() => {
+    if (visible) {
+      previousActiveElement.current = document.activeElement as HTMLElement;
+      // Small delay to ensure button is rendered
+      setTimeout(() => {
+        buttonRef.current?.focus();
+      }, 100);
+    } else {
+      previousActiveElement.current?.focus();
+    }
+  }, [visible]);
 
   const handleConfettiComplete = useCallback(() => {
     setShowConfetti(false);
@@ -130,6 +145,14 @@ export const BattleResultOverlay: React.FC<BattleResultOverlayProps> = ({
     return `${baseClass} ${styles['result-points--neutral']}`;
   };
 
+  // Generate aria-label for accessibility announcement
+  const getResultAriaLabel = (): string => {
+    const resultText = result === 'win' ? '勝利' : result === 'lose' ? '敗北' : '引き分け';
+    const roleText = getRoleDisplay();
+    const pointsText = pointsChange > 0 ? `${pointsChange}ポイント獲得` : pointsChange < 0 ? `${Math.abs(pointsChange)}ポイント減少` : 'ポイント変動なし';
+    return `${resultText}！${roleText}で${pointsText}`;
+  };
+
   return (
     <>
       <Confetti
@@ -144,14 +167,15 @@ export const BattleResultOverlay: React.FC<BattleResultOverlayProps> = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="battle-result-title"
+        aria-describedby="battle-result-description"
       >
-        <div className={styles.content}>
+        <div className={styles.content} aria-live="assertive" aria-atomic="true">
           <h2 id="battle-result-title" className={getResultTextClass()}>
             {getResultText()}
           </h2>
-          <p className={styles['result-role']}>{getRoleDisplay()}</p>
-          <p className={getPointsClass()}>{getPointsDisplay()}</p>
-          <Button variant="primary" onClick={onClose}>
+          <p id="battle-result-description" className={styles['result-role']}>{getRoleDisplay()}</p>
+          <p className={getPointsClass()} aria-label={getResultAriaLabel()}>{getPointsDisplay()}</p>
+          <Button ref={buttonRef} variant="primary" onClick={onClose}>
             OK
           </Button>
         </div>

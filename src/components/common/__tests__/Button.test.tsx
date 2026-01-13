@@ -1,3 +1,4 @@
+import React, { createRef } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -180,6 +181,51 @@ describe('Button', () => {
       const button = screen.getByRole('button');
       button.focus();
       expect(button).not.toHaveFocus();
+    });
+
+    it('has aria-disabled when disabled', () => {
+      render(<Button disabled>Disabled</Button>);
+      const button = screen.getByRole('button');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('has aria-busy when loading', () => {
+      render(<Button loading>Loading</Button>);
+      const button = screen.getByRole('button');
+      expect(button).toHaveAttribute('aria-busy', 'true');
+    });
+
+    it('icon elements are aria-hidden', () => {
+      const { container } = render(<Button icon={<span>★</span>}>With Icon</Button>);
+      const iconWrapper = container.querySelector('[class*="btn-icon"]');
+      expect(iconWrapper).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('spinner is aria-hidden when loading', () => {
+      const { container } = render(<Button loading>Loading</Button>);
+      const spinner = container.querySelector('span[class*="spinner"]');
+      expect(spinner).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
+
+  describe('forwardRef', () => {
+    it('forwards ref to the button element', () => {
+      const ref = createRef<HTMLButtonElement>();
+      render(<Button ref={ref}>With Ref</Button>);
+      expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+      expect(ref.current?.tagName).toBe('BUTTON');
+    });
+
+    it('forwards ref for footer variant', () => {
+      const ref = createRef<HTMLButtonElement>();
+      render(<Button ref={ref} variant="footer" icon={<span>⚙</span>} label="Settings" />);
+      expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+    });
+
+    it('forwards ref for icon variant', () => {
+      const ref = createRef<HTMLButtonElement>();
+      render(<Button ref={ref} variant="icon" aria-label="Help">?</Button>);
+      expect(ref.current).toBeInstanceOf(HTMLButtonElement);
     });
   });
 });

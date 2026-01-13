@@ -22,7 +22,8 @@ describe('Card', () => {
       const image = screen.getByRole('img');
       expect(image).toBeInTheDocument();
       expect(image).toHaveAttribute('src', card.image);
-      expect(image).toHaveAttribute('alt', `Card ${card.id}`);
+      // Alt text now includes color and fur type for accessibility
+      expect(image).toHaveAttribute('alt', '茶白の短毛猫');
     });
 
     it('renders card back when isBack is true', () => {
@@ -269,12 +270,13 @@ describe('Card', () => {
       expect(cardElement).not.toHaveAttribute('tabIndex');
     });
 
-    it('has aria-pressed attribute when clickable', () => {
+    it('has aria-selected attribute when clickable and selected', () => {
       const card = createMockCard();
       const { container } = render(<Card card={card} onClick={() => {}} isSelected />);
 
       const cardElement = container.firstChild as HTMLElement;
-      expect(cardElement).toHaveAttribute('aria-pressed', 'true');
+      // Changed from aria-pressed to aria-selected for card selection context
+      expect(cardElement).toHaveAttribute('aria-selected', 'true');
     });
 
     it('has aria-disabled attribute when disabled', () => {
@@ -285,12 +287,29 @@ describe('Card', () => {
       expect(cardElement).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('image has alt text', () => {
-      const card = createMockCard({ id: 42 });
+    it('image has descriptive alt text with color and fur type', () => {
+      const card = createMockCard({ id: 42, color: 4, fur: 1 });
       render(<Card card={card} />);
 
       const image = screen.getByRole('img');
-      expect(image).toHaveAttribute('alt', 'Card 42');
+      // Alt text now includes color and fur type for better accessibility
+      expect(image).toHaveAttribute('alt', '茶白の短毛猫');
+    });
+
+    it('has aria-label for the card element', () => {
+      const card = createMockCard({ color: 0, fur: 0 }); // 茶トラ, 長毛
+      const { container } = render(<Card card={card} />);
+
+      const cardElement = container.firstChild as HTMLElement;
+      expect(cardElement).toHaveAttribute('aria-label', '茶トラの長毛猫');
+    });
+
+    it('has aria-label for back card', () => {
+      const card = createMockCard();
+      const { container } = render(<Card card={card} isBack />);
+
+      const cardElement = container.firstChild as HTMLElement;
+      expect(cardElement).toHaveAttribute('aria-label', '裏向きのカード');
     });
 
     it('image is not draggable', () => {

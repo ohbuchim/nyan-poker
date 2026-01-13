@@ -348,6 +348,69 @@ describe('BattleResultOverlay', () => {
       );
       expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
     });
+
+    it('aria-labelledbyが設定されている', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby', 'battle-result-title');
+    });
+
+    it('aria-describedbyが設定されている', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', 'battle-result-description');
+    });
+
+    it('aria-liveが設定されている', () => {
+      const onClose = vi.fn();
+      const { container } = render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      const content = container.querySelector('[class*="content"]');
+      expect(content).toHaveAttribute('aria-live', 'assertive');
+    });
+
+    it('ポイント変動にaria-labelが設定されている', () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+      const pointsElement = screen.getByText('+300 pt');
+      expect(pointsElement).toHaveAttribute('aria-label');
+      expect(pointsElement.getAttribute('aria-label')).toContain('勝利');
+    });
   });
 
   describe('紙吹雪エフェクト', () => {
