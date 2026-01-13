@@ -3,12 +3,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import {
-  GameProvider,
-  useGame,
-  initialGameState,
-  type GameState,
-} from '../GameContext';
+import { GameProvider, useGame } from '../GameContext';
+import { initialGameState } from '../../types';
+import type { GameState } from '../../types';
 import * as deckModule from '../../utils/deck';
 import type { Card } from '../../types';
 

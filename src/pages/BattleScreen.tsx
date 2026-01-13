@@ -13,17 +13,16 @@ import { drawCards } from '../utils/deck';
 import { calculateRole, determineWinner } from '../utils/roleCalculator';
 import { decideDealerExchange, executeDealerExchange } from '../utils/dealerAI';
 import { useSound } from '../hooks';
+import {
+  TOTAL_ROUNDS,
+  HAND_SIZE,
+  MAX_SELECTABLE_CARDS,
+  EXCHANGE_ANIMATION_DELAY,
+  DEALER_EXCHANGE_DELAY,
+  ROLE_HIGHLIGHT_DELAY,
+  ICONS,
+} from '../constants';
 import styles from './BattleScreen.module.css';
-
-const MAX_SELECTABLE_CARDS = 3;
-const TOTAL_ROUNDS = 5;
-const HAND_SIZE = 5;
-const EXCHANGE_ANIMATION_DELAY = 400;
-const DEALER_EXCHANGE_DELAY = 800;
-/** Delay before role highlight starts after exchange completes (ms) */
-const ROLE_HIGHLIGHT_DELAY = 300;
-const DEALER_ICON = '\uD83C\uDFA9'; // Top hat emoji
-const PLAYER_ICON = '\uD83D\uDC31'; // Cat emoji
 
 export interface BattleScreenProps {
   onGameEnd: (finalScore: number, history: RoundHistory[]) => void;
@@ -326,7 +325,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       <div className={styles['battle-roles-header']}>
         <BattleRoleBox
           label="Dealer"
-          icon={DEALER_ICON}
+          icon={ICONS.DEALER}
           role={dealerRole}
           showRole={showDealerCards}
           status={getDealerRoleStatus}
@@ -334,7 +333,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         <div className={styles['battle-vs']}>VS</div>
         <BattleRoleBox
           label="You"
-          icon={PLAYER_ICON}
+          icon={ICONS.PLAYER}
           role={playerRole}
           showRole={showDealerCards}
           status={getPlayerRoleStatus}
@@ -344,7 +343,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       <div className={styles['battle-area']}>
         <div className={styles['dealer-area']}>
           <div className={styles['dealer-header']}>
-            <span className={styles['dealer-icon']}>{DEALER_ICON}</span>
+            <span className={styles['dealer-icon']}>{ICONS.DEALER}</span>
             <span className={styles['dealer-label']}>Dealer</span>
           </div>
           <div className={styles['hand-area-compact']}>

@@ -5,10 +5,14 @@ import {
   shuffleDeck,
   createDeck,
   drawCards,
+  dealPlayerHand,
+  dealBothHands,
+  exchangeCardsInHand,
   TOTAL_CARDS,
 } from '../deck';
 import type { Card } from '../../types/card';
 import { CARD_DATA } from '../../data/cardData';
+import { HAND_SIZE } from '../../constants';
 
 /** テスト用のカード生成ヘルパー */
 function createTestCard(id: number, color: number, fur: number): Card {
@@ -395,6 +399,191 @@ describe('統合テスト', () => {
           expect(card.id).toBeLessThan(229);
         });
       }
+    });
+  });
+});
+
+describe('dealPlayerHand', () => {
+  it('HAND_SIZE枚のカードを配布する', () => {
+    const hand = dealPlayerHand();
+    expect(hand.length).toBe(HAND_SIZE);
+    expect(hand.length).toBe(5);
+  });
+
+  it('除外リストを指定できる', () => {
+    const excludeIds = [0, 1, 2, 3, 4];
+    const hand = dealPlayerHand(excludeIds);
+
+    hand.forEach((card) => {
+      expect(excludeIds).not.toContain(card.id);
+    });
+  });
+
+  it('引いたカードにIDの重複がない', () => {
+    const hand = dealPlayerHand();
+    const ids = hand.map((c) => c.id);
+    const uniqueIds = [...new Set(ids)];
+    expect(uniqueIds.length).toBe(hand.length);
+  });
+});
+
+describe('dealBothHands', () => {
+  it('プレイヤーとディーラーにそれぞれHAND_SIZE枚のカードを配布する', () => {
+    const { playerHand, dealerHand } = dealBothHands();
+
+    expect(playerHand.length).toBe(HAND_SIZE);
+    expect(dealerHand.length).toBe(HAND_SIZE);
+  });
+
+  it('プレイヤーとディーラーの手札に重複がない', () => {
+    const { playerHand, dealerHand } = dealBothHands();
+
+    const playerIds = playerHand.map((c) => c.id);
+    const dealerIds = dealerHand.map((c) => c.id);
+
+    // プレイヤー内での重複なし
+    expect([...new Set(playerIds)].length).toBe(playerIds.length);
+
+    // ディーラー内での重複なし
+    expect([...new Set(dealerIds)].length).toBe(dealerIds.length);
+
+    // プレイヤーとディーラー間での重複なし
+    dealerIds.forEach((id) => {
+      expect(playerIds).not.toContain(id);
+    });
+  });
+
+  it('除外リストを指定できる', () => {
+    const excludeIds = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const { playerHand, dealerHand } = dealBothHands(excludeIds);
+
+    // プレイヤーの手札に除外カードが含まれない
+    playerHand.forEach((card) => {
+      expect(excludeIds).not.toContain(card.id);
+    });
+
+    // ディーラーの手札に除外カードが含まれない
+    dealerHand.forEach((card) => {
+      expect(excludeIds).not.toContain(card.id);
+    });
+  });
+});
+
+describe('exchangeCardsInHand', () => {
+  it('指定したカードを新しいカードに交換する', () => {
+    // 初期手札を作成
+    const initialHand: Card[] = [
+      createTestCard(0, 0, 1),
+      createTestCard(1, 1, 1),
+      createTestCard(2, 2, 1),
+      createTestCard(3, 3, 1),
+      createTestCard(4, 4, 1),
+    ];
+
+    // カード0と1を交換
+    const cardIdsToExchange = [0, 1];
+    const excludeIds = [0, 1, 2, 3, 4]; // 初期手札全てを除外
+
+    const { newHand, newCards } = exchangeCardsInHand(
+      initialHand,
+      cardIdsToExchange,
+      excludeIds
+    );
+
+    // 手札のサイズは変わらない
+    expect(newHand.length).toBe(5);
+
+    // 新しいカードの枚数
+    expect(newCards.length).toBe(2);
+
+    // 交換しなかったカードは残っている
+    expect(newHand[2].id).toBe(2);
+    expect(newHand[3].id).toBe(3);
+    expect(newHand[4].id).toBe(4);
+
+    // 交換されたカードは新しいカードに置き換わっている
+    expect(newHand[0].id).not.toBe(0);
+    expect(newHand[1].id).not.toBe(1);
+
+    // 新しいカードは除外リストに含まれない
+    newCards.forEach((card) => {
+      expect(excludeIds).not.toContain(card.id);
+    });
+  });
+
+  it('交換するカードがない場合は元の手札をそのまま返す', () => {
+    const initialHand: Card[] = [
+      createTestCard(0, 0, 1),
+      createTestCard(1, 1, 1),
+      createTestCard(2, 2, 1),
+      createTestCard(3, 3, 1),
+      createTestCard(4, 4, 1),
+    ];
+
+    const { newHand, newCards } = exchangeCardsInHand(initialHand, [], [0, 1, 2, 3, 4]);
+
+    expect(newHand).toEqual(initialHand);
+    expect(newCards).toEqual([]);
+  });
+
+  it('カードの位置が維持される', () => {
+    const initialHand: Card[] = [
+      createTestCard(0, 0, 1),
+      createTestCard(1, 1, 1),
+      createTestCard(2, 2, 1),
+      createTestCard(3, 3, 1),
+      createTestCard(4, 4, 1),
+    ];
+
+    // カード2を交換
+    const cardIdsToExchange = [2];
+    const excludeIds = [0, 1, 2, 3, 4];
+
+    const { newHand } = exchangeCardsInHand(
+      initialHand,
+      cardIdsToExchange,
+      excludeIds
+    );
+
+    // 位置0, 1, 3, 4は変更されていない
+    expect(newHand[0].id).toBe(0);
+    expect(newHand[1].id).toBe(1);
+    expect(newHand[3].id).toBe(3);
+    expect(newHand[4].id).toBe(4);
+
+    // 位置2だけ変更されている
+    expect(newHand[2].id).not.toBe(2);
+  });
+
+  it('3枚交換のシナリオ', () => {
+    const initialHand: Card[] = [
+      createTestCard(0, 0, 1),
+      createTestCard(1, 1, 1),
+      createTestCard(2, 2, 1),
+      createTestCard(3, 3, 1),
+      createTestCard(4, 4, 1),
+    ];
+
+    // カード0, 2, 4を交換
+    const cardIdsToExchange = [0, 2, 4];
+    const excludeIds = [0, 1, 2, 3, 4];
+
+    const { newHand, newCards } = exchangeCardsInHand(
+      initialHand,
+      cardIdsToExchange,
+      excludeIds
+    );
+
+    expect(newCards.length).toBe(3);
+    expect(newHand.length).toBe(5);
+
+    // 保持されたカード
+    expect(newHand[1].id).toBe(1);
+    expect(newHand[3].id).toBe(3);
+
+    // 新しいカードは元の手札のIDと異なる
+    newCards.forEach((card) => {
+      expect([0, 1, 2, 3, 4]).not.toContain(card.id);
     });
   });
 });

@@ -10,46 +10,11 @@ import {
 } from 'react';
 
 import type { Card, GameMode, GamePhase, Role, RoundHistory } from '../types';
+import { initialGameState } from '../types';
+import type { GameState } from '../types';
 import { drawCards } from '../utils/deck';
 import { calculateRole, determineWinner } from '../utils/roleCalculator';
-
-/** ゲームの総ラウンド数 */
-const TOTAL_ROUNDS = 5;
-
-/** 手札の枚数 */
-const HAND_SIZE = 5;
-
-/** ゲーム状態 */
-export interface GameState {
-  mode: GameMode;
-  phase: GamePhase;
-  round: number;
-  playerHand: Card[];
-  dealerHand: Card[];
-  selectedCardIds: number[];
-  playerRole: Role | null;
-  dealerRole: Role | null;
-  playerScore: number;
-  dealerScore: number;
-  roundHistory: RoundHistory[];
-  excludedCardIds: number[];
-}
-
-/** 初期ゲーム状態 */
-export const initialGameState: GameState = {
-  mode: 'solo',
-  phase: 'dealing',
-  round: 1,
-  playerHand: [],
-  dealerHand: [],
-  selectedCardIds: [],
-  playerRole: null,
-  dealerRole: null,
-  playerScore: 0,
-  dealerScore: 0,
-  roundHistory: [],
-  excludedCardIds: [],
-};
+import { TOTAL_ROUNDS, HAND_SIZE } from '../constants';
 
 /** アクション型 */
 type GameAction =

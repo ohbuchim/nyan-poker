@@ -25,19 +25,23 @@ export interface RoundHistory {
   result?: 'win' | 'lose' | 'draw'; // 対戦モードのみ
 }
 
-/** ゲーム状態 */
+/**
+ * ゲーム状態（Context用）
+ * GameContextで管理されるゲームの状態
+ */
 export interface GameState {
   mode: GameMode;
   phase: GamePhase;
-  round: number;              // 現在のラウンド（1-5）
-  totalScore: number;         // 累計スコア
-  playerHand: Card[];         // プレイヤーの手札（5枚）
-  dealerHand: Card[];         // ディーラーの手札（対戦モード、5枚）
-  selectedCardIds: number[];  // 交換選択中のカードID
-  exchanged: boolean;         // 交換済みフラグ
-  history: RoundHistory[];    // ラウンド履歴
-  currentRole?: Role;         // 現在の役（判定後）
-  dealerRole?: Role;          // ディーラーの役（対戦モード、判定後）
+  round: number;                // 現在のラウンド（1-5）
+  playerHand: Card[];           // プレイヤーの手札（5枚）
+  dealerHand: Card[];           // ディーラーの手札（対戦モード、5枚）
+  selectedCardIds: number[];    // 交換選択中のカードID
+  playerRole: Role | null;      // プレイヤーの役（判定後）
+  dealerRole: Role | null;      // ディーラーの役（対戦モード、判定後）
+  playerScore: number;          // プレイヤーの累計スコア
+  dealerScore: number;          // ディーラーの累計スコア（対戦モード）
+  roundHistory: RoundHistory[]; // ラウンド履歴
+  excludedCardIds: number[];    // 除外されたカードID（同一ラウンド内で重複を防ぐ）
 }
 
 /** 初期ゲーム状態 */
@@ -45,10 +49,13 @@ export const initialGameState: GameState = {
   mode: 'solo',
   phase: 'dealing',
   round: 1,
-  totalScore: 0,
   playerHand: [],
   dealerHand: [],
   selectedCardIds: [],
-  exchanged: false,
-  history: [],
+  playerRole: null,
+  dealerRole: null,
+  playerScore: 0,
+  dealerScore: 0,
+  roundHistory: [],
+  excludedCardIds: [],
 };

@@ -5,14 +5,14 @@ import { GameHeader, RoleDisplay, ActionButtons } from '../components/game';
 import { drawCards } from '../utils/deck';
 import { calculateRole } from '../utils/roleCalculator';
 import { useSound } from '../hooks';
+import {
+  TOTAL_ROUNDS,
+  HAND_SIZE,
+  MAX_SELECTABLE_CARDS,
+  EXCHANGE_ANIMATION_DELAY,
+  ROLE_HIGHLIGHT_DELAY,
+} from '../constants';
 import styles from './GameScreen.module.css';
-
-const MAX_SELECTABLE_CARDS = 3;
-const TOTAL_ROUNDS = 5;
-const HAND_SIZE = 5;
-const EXCHANGE_ANIMATION_DELAY = 400;
-/** Delay before role highlight starts after exchange completes (ms) */
-const ROLE_HIGHLIGHT_DELAY = 300;
 
 export interface GameScreenProps {
   onGameEnd: (finalScore: number, history: RoundHistory[]) => void;

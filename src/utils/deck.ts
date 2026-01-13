@@ -2,9 +2,10 @@
 
 import type { Card } from '../types/card';
 import { CARD_DATA } from '../data/cardData';
+import { TOTAL_CARDS, HAND_SIZE } from '../constants';
 
-/** 総カード枚数 */
-export const TOTAL_CARDS = 229;
+// 後方互換のため TOTAL_CARDS を再エクスポート
+export { TOTAL_CARDS };
 
 /**
  * デッキをシャッフル（Fisher-Yatesアルゴリズム）
@@ -67,4 +68,64 @@ export function drawCards(count: number, excludeIds: number[] = []): Card[] {
 
   const shuffled = shuffleDeck(available);
   return shuffled.slice(0, count);
+}
+
+/**
+ * プレイヤーの手札を配る（ひとりモード用）
+ * HAND_SIZE枚のカードを新しく引く
+ *
+ * @param excludeIds - 除外するカードのID配列（デフォルト: 空配列）
+ * @returns 配られた手札
+ */
+export function dealPlayerHand(excludeIds: number[] = []): Card[] {
+  return drawCards(HAND_SIZE, excludeIds);
+}
+
+/**
+ * プレイヤーとディーラーの手札を配る（対戦モード用）
+ * それぞれHAND_SIZE枚のカードを配布し、プレイヤーとディーラーで重複しないようにする
+ *
+ * @param excludeIds - 除外するカードのID配列（デフォルト: 空配列）
+ * @returns プレイヤーとディーラーの手札
+ */
+export function dealBothHands(excludeIds: number[] = []): {
+  playerHand: Card[];
+  dealerHand: Card[];
+} {
+  const playerHand = drawCards(HAND_SIZE, excludeIds);
+  const playerCardIds = playerHand.map((c) => c.id);
+  const dealerHand = drawCards(HAND_SIZE, [...excludeIds, ...playerCardIds]);
+
+  return { playerHand, dealerHand };
+}
+
+/**
+ * 手札の一部を交換する
+ * 指定されたカードを新しいカードに置き換える
+ *
+ * @param hand - 現在の手札
+ * @param cardIdsToExchange - 交換するカードのID配列
+ * @param excludeIds - 除外するカードのID配列（交換対象を含む）
+ * @returns 交換後の手札と新しく引いたカード
+ */
+export function exchangeCardsInHand(
+  hand: Card[],
+  cardIdsToExchange: number[],
+  excludeIds: number[]
+): { newHand: Card[]; newCards: Card[] } {
+  if (cardIdsToExchange.length === 0) {
+    return { newHand: hand, newCards: [] };
+  }
+
+  const newCards = drawCards(cardIdsToExchange.length, excludeIds);
+  let newCardIndex = 0;
+
+  const newHand = hand.map((card) => {
+    if (cardIdsToExchange.includes(card.id)) {
+      return newCards[newCardIndex++];
+    }
+    return card;
+  });
+
+  return { newHand, newCards };
 }
