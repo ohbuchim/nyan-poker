@@ -1,10 +1,11 @@
 // context/__tests__/StatsContext.test.tsx
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { StatsProvider, useStats } from '../StatsContext';
-import { STORAGE_KEY, CURRENT_VERSION, DEFAULT_STATS } from '../../types';
+import { DEFAULT_STATS } from '../../types';
+import { STORAGE_VERSION, STORAGE_KEYS } from '../../hooks';
 
 /** Wrapper コンポーネント */
 function wrapper({ children }: { children: ReactNode }) {
@@ -14,11 +15,6 @@ function wrapper({ children }: { children: ReactNode }) {
 describe('StatsContext', () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('初期状態', () => {
@@ -31,25 +27,30 @@ describe('StatsContext', () => {
     });
 
     it('ローカルストレージから統計を読み込む', () => {
-      const savedData = {
-        settings: {
-          soundEnabled: true,
-          volume: 80,
-        },
-        stats: {
-          solo: { playCount: 10, highScore: 150, totalScore: 800 },
-          battle: { playCount: 5, wins: 3, losses: 2 },
-          roleAchievements: { flush: 2, fourColor: 5 },
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // 各キーに個別にデータを保存
+      localStorage.setItem(
+        STORAGE_KEYS.SOLO_STATS,
+        JSON.stringify({
+          version: STORAGE_VERSION,
+          data: { playCount: 10, highScore: 150, totalScore: 800 },
+        })
+      );
+      localStorage.setItem(
+        STORAGE_KEYS.BATTLE_STATS,
+        JSON.stringify({
+          version: STORAGE_VERSION,
+          data: { playCount: 5, wins: 3, losses: 2 },
+        })
+      );
+      localStorage.setItem(
+        STORAGE_KEYS.ACHIEVEMENTS,
+        JSON.stringify({
+          version: STORAGE_VERSION,
+          data: { flush: 2, fourColor: 5 },
+        })
+      );
 
       const { result } = renderHook(() => useStats(), { wrapper });
-
-      act(() => {
-        vi.runAllTimers();
-      });
 
       expect(result.current.soloStats.playCount).toBe(10);
       expect(result.current.soloStats.highScore).toBe(150);
@@ -58,27 +59,20 @@ describe('StatsContext', () => {
     });
 
     it('バージョンが異なる場合はデフォルト統計を使用', () => {
-      const savedData = {
-        settings: {
-          soundEnabled: true,
-          volume: 80,
-        },
-        stats: {
-          solo: { playCount: 10, highScore: 150, totalScore: 800 },
-          battle: { playCount: 5, wins: 3, losses: 2 },
-          roleAchievements: {},
-        },
-        version: 999,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      localStorage.setItem(
+        STORAGE_KEYS.SOLO_STATS,
+        JSON.stringify({
+          version: 999, // 無効なバージョン
+          data: { playCount: 10, highScore: 150, totalScore: 800 },
+        })
+      );
 
       const { result } = renderHook(() => useStats(), { wrapper });
 
-      act(() => {
-        vi.runAllTimers();
-      });
-
       expect(result.current.soloStats).toEqual(DEFAULT_STATS.solo);
+
+      consoleSpy.mockRestore();
     });
   });
 
@@ -133,20 +127,12 @@ describe('StatsContext', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        vi.runAllTimers();
-      });
-
-      act(() => {
         result.current.updateSoloStats(75);
       });
 
-      act(() => {
-        vi.runAllTimers();
-      });
-
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      expect(saved.stats.solo.playCount).toBe(1);
-      expect(saved.stats.solo.highScore).toBe(75);
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SOLO_STATS) || '{}');
+      expect(saved.data.playCount).toBe(1);
+      expect(saved.data.highScore).toBe(75);
     });
   });
 
@@ -179,11 +165,11 @@ describe('StatsContext', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        result.current.updateBattleStats(true);  // 勝利
+        result.current.updateBattleStats(true); // 勝利
       });
 
       act(() => {
-        result.current.updateBattleStats(true);  // 勝利
+        result.current.updateBattleStats(true); // 勝利
       });
 
       act(() => {
@@ -193,6 +179,18 @@ describe('StatsContext', () => {
       expect(result.current.battleStats.playCount).toBe(3);
       expect(result.current.battleStats.wins).toBe(2);
       expect(result.current.battleStats.losses).toBe(1);
+    });
+
+    it('統計がローカルストレージに保存される', () => {
+      const { result } = renderHook(() => useStats(), { wrapper });
+
+      act(() => {
+        result.current.updateBattleStats(true);
+      });
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.BATTLE_STATS) || '{}');
+      expect(saved.data.playCount).toBe(1);
+      expect(saved.data.wins).toBe(1);
     });
   });
 
@@ -244,6 +242,17 @@ describe('StatsContext', () => {
       expect(result.current.roleAchievements.fourColor).toBe(1);
       expect(result.current.roleAchievements.onePair).toBe(1);
     });
+
+    it('役達成がローカルストレージに保存される', () => {
+      const { result } = renderHook(() => useStats(), { wrapper });
+
+      act(() => {
+        result.current.incrementRoleAchievement('flush');
+      });
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS) || '{}');
+      expect(saved.data.flush).toBe(1);
+    });
   });
 
   describe('resetStats', () => {
@@ -271,27 +280,38 @@ describe('StatsContext', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        vi.runAllTimers();
-      });
-
-      act(() => {
         result.current.updateSoloStats(100);
-      });
-
-      act(() => {
-        vi.runAllTimers();
       });
 
       act(() => {
         result.current.resetStats();
       });
 
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SOLO_STATS) || '{}');
+      expect(saved.data.playCount).toBe(0);
+    });
+
+    it('リセット時に全ストレージキーが更新される', () => {
+      const { result } = renderHook(() => useStats(), { wrapper });
+
       act(() => {
-        vi.runAllTimers();
+        result.current.updateSoloStats(100);
+        result.current.updateBattleStats(true);
+        result.current.incrementRoleAchievement('flush');
       });
 
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      expect(saved.stats.solo.playCount).toBe(0);
+      act(() => {
+        result.current.resetStats();
+      });
+
+      const soloSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.SOLO_STATS) || '{}');
+      const battleSaved = JSON.parse(localStorage.getItem(STORAGE_KEYS.BATTLE_STATS) || '{}');
+      // achievementsはremoveItemで削除されるのでnullになる
+      const achievementsSaved = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
+
+      expect(soloSaved.data.playCount).toBe(0);
+      expect(battleSaved.data.playCount).toBe(0);
+      expect(achievementsSaved).toBeNull();
     });
   });
 
@@ -307,42 +327,28 @@ describe('StatsContext', () => {
     });
   });
 
-  describe('ローカルストレージへの保存', () => {
-    it('既存データがある場合は統計のみ更新される', () => {
-      const existingData = {
-        settings: {
-          soundEnabled: false,
-          volume: 30,
-        },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 0, wins: 0, losses: 0 },
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(existingData));
-
+  describe('データ分離', () => {
+    it('各統計は別々のストレージキーで保存される', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        vi.runAllTimers();
+        result.current.updateSoloStats(100);
+        result.current.updateBattleStats(true);
+        result.current.incrementRoleAchievement('flush');
       });
 
-      act(() => {
-        result.current.updateSoloStats(50);
-      });
+      // 各キーにデータが保存される
+      const soloData = localStorage.getItem(STORAGE_KEYS.SOLO_STATS);
+      const battleData = localStorage.getItem(STORAGE_KEYS.BATTLE_STATS);
+      const achievementsData = localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS);
 
-      act(() => {
-        vi.runAllTimers();
-      });
+      expect(soloData).not.toBeNull();
+      expect(battleData).not.toBeNull();
+      expect(achievementsData).not.toBeNull();
 
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      // 統計は更新される
-      expect(saved.stats.solo.playCount).toBe(1);
-      // 設定は保持される
-      expect(saved.settings.soundEnabled).toBe(false);
-      expect(saved.settings.volume).toBe(30);
+      // 設定キーには影響しない
+      const settingsData = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      expect(settingsData).toBeNull();
     });
   });
 });
