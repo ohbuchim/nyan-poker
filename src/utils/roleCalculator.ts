@@ -1,6 +1,6 @@
 // utils/roleCalculator.ts
 
-import type { Card, ColorCode, FurCode } from '../types/card';
+import type { Card, FurCode } from '../types/card';
 import { COLOR_NAMES } from '../types/card';
 import type { Role } from '../types/role';
 import {
@@ -10,48 +10,14 @@ import {
   ONE_PAIR_ROLES,
   FUR_ROLES,
   NO_PAIR,
-  COLOR_RARITY,
   calculateTwoPairPoints,
   calculateFullHousePoints,
 } from '../data/roleDefinitions';
+import { analyzeHand } from './cardAnalysis';
 
-/** 手札分析データ */
-export interface HandAnalysis {
-  colorCounts: Map<ColorCode, number>; // 毛色ごとの枚数
-  furCounts: Map<FurCode, number>; // 毛の長さごとの枚数
-  sortedColorCounts: [ColorCode, number][]; // 枚数順にソートされた色リスト
-}
-
-/**
- * 手札を分析する
- * 毛色と毛の長さごとのカード枚数をカウントし、分析結果を返す
- *
- * @param cards - 分析する手札（5枚）
- * @returns 毛色ごとの枚数、毛の長さごとの枚数、枚数順にソートされた色リスト
- */
-export function analyzeHand(cards: Card[]): HandAnalysis {
-  const colorCounts = new Map<ColorCode, number>();
-  const furCounts = new Map<FurCode, number>();
-
-  cards.forEach((card) => {
-    colorCounts.set(card.color, (colorCounts.get(card.color) || 0) + 1);
-    furCounts.set(card.fur, (furCounts.get(card.fur) || 0) + 1);
-  });
-
-  // 枚数の多い順にソート（同数の場合はレアリティの高い方を優先）
-  const sortedColorCounts = Array.from(colorCounts.entries()).sort(
-    (a, b) => {
-      if (b[1] !== a[1]) {
-        return b[1] - a[1]; // 枚数の多い順
-      }
-      // 枚数が同じ場合はレアリティ（COLOR_RARITY）で決定
-      // レアリティが高い方を優先（降順）
-      return COLOR_RARITY[b[0]] - COLOR_RARITY[a[0]];
-    }
-  ) as [ColorCode, number][];
-
-  return { colorCounts, furCounts, sortedColorCounts };
-}
+// 後方互換のため、analyzeHandとHandAnalysis型を再エクスポート
+export { analyzeHand };
+export type { HandAnalysis } from './cardAnalysis';
 
 /**
  * 手札から役を判定する

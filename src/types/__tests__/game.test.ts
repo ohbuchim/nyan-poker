@@ -15,8 +15,12 @@ describe('game types', () => {
       expect(initialGameState.round).toBe(1);
     });
 
-    it('should have 0 initial score', () => {
-      expect(initialGameState.totalScore).toBe(0);
+    it('should have 0 initial player score', () => {
+      expect(initialGameState.playerScore).toBe(0);
+    });
+
+    it('should have 0 initial dealer score', () => {
+      expect(initialGameState.dealerScore).toBe(0);
     });
 
     it('should have empty hands', () => {
@@ -28,17 +32,17 @@ describe('game types', () => {
       expect(initialGameState.selectedCardIds).toEqual([]);
     });
 
-    it('should not be exchanged yet', () => {
-      expect(initialGameState.exchanged).toBe(false);
+    it('should have empty round history', () => {
+      expect(initialGameState.roundHistory).toEqual([]);
     });
 
-    it('should have empty history', () => {
-      expect(initialGameState.history).toEqual([]);
+    it('should have empty excluded card ids', () => {
+      expect(initialGameState.excludedCardIds).toEqual([]);
     });
 
     it('should have no roles initially', () => {
-      expect(initialGameState.currentRole).toBeUndefined();
-      expect(initialGameState.dealerRole).toBeUndefined();
+      expect(initialGameState.playerRole).toBeNull();
+      expect(initialGameState.dealerRole).toBeNull();
     });
 
     it('should be a valid GameState type', () => {

@@ -1,7 +1,16 @@
 // utils/dealerAI.ts
 
-import type { Card, ColorCode, FurCode } from '../types/card';
+import type { Card, ColorCode } from '../types/card';
 import { COLOR_RARITY } from '../data/roleDefinitions';
+import {
+  countByColor,
+  countByFur,
+  findDominantColor,
+  findMaxCountColor,
+} from './cardAnalysis';
+
+// 後方互換のため、カード分析関数を再エクスポート
+export { countByColor, countByFur, findDominantColor };
 
 /** ディーラーの交換戦略結果 */
 export interface ExchangeStrategy {
@@ -17,85 +26,6 @@ export interface ExchangeStrategy {
  */
 export function getColorRarity(color: ColorCode): number {
   return COLOR_RARITY[color];
-}
-
-/**
- * 毛色ごとのカード枚数をカウントする
- *
- * @param cards - 手札
- * @returns 毛色コードをキー、枚数を値とするMap
- */
-export function countByColor(cards: Card[]): Map<ColorCode, number> {
-  const counts = new Map<ColorCode, number>();
-  cards.forEach((card) => {
-    counts.set(card.color, (counts.get(card.color) || 0) + 1);
-  });
-  return counts;
-}
-
-/**
- * 毛の長さごとのカード枚数をカウントする
- *
- * @param cards - 手札
- * @returns 毛の長さコードをキー、枚数を値とするRecord
- */
-export function countByFur(cards: Card[]): Record<FurCode, number> {
-  return cards.reduce(
-    (acc, card) => {
-      acc[card.fur] = (acc[card.fur] || 0) + 1;
-      return acc;
-    },
-    { 0: 0, 1: 0 } as Record<FurCode, number>
-  );
-}
-
-/**
- * 指定枚数以上ある最もレアリティの高い色を探す
- *
- * @param colorCounts - 毛色ごとのカード枚数Map
- * @param minCount - 最小枚数
- * @returns 条件を満たす最も高いレアリティの毛色コード、見つからない場合はnull
- */
-export function findDominantColor(
-  colorCounts: Map<ColorCode, number>,
-  minCount: number
-): ColorCode | null {
-  let bestColor: ColorCode | null = null;
-  let bestRarity = -1;
-
-  for (const [color, count] of colorCounts) {
-    if (count >= minCount) {
-      const rarity = COLOR_RARITY[color];
-      if (rarity > bestRarity) {
-        bestRarity = rarity;
-        bestColor = color;
-      }
-    }
-  }
-
-  return bestColor;
-}
-
-/**
- * 最も枚数の多い色を探す（同数ならレアリティの高い方を選択）
- *
- * @param colorCounts - 毛色ごとのカード枚数Map
- * @returns 最も枚数が多い毛色コード、見つからない場合はnull
- */
-function findMaxCountColor(colorCounts: Map<ColorCode, number>): ColorCode | null {
-  let bestColor: ColorCode | null = null;
-  let maxCount = 0;
-  let bestRarity = -1;
-
-  for (const [color, count] of colorCounts) {
-    if (count > maxCount || (count === maxCount && COLOR_RARITY[color] > bestRarity)) {
-      maxCount = count;
-      bestColor = color;
-      bestRarity = COLOR_RARITY[color];
-    }
-  }
-
-  return bestColor;
 }
 
 /**

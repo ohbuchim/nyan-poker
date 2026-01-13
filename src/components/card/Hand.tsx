@@ -2,21 +2,11 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import type { Card as CardType } from '../../types';
 import { Card, type CardAnimationType } from './Card';
 import { CardInfo } from './CardInfo';
+import {
+  MAX_SELECTABLE_CARDS,
+  calculateDealAnimationDuration,
+} from '../../constants';
 import styles from './Hand.module.css';
-
-/** Maximum number of cards that can be selected for exchange */
-const MAX_SELECTED_CARDS = 3;
-
-/** Animation timing constants */
-const CARD_DEAL_DURATION = 300; // 0.3s per card
-const CARD_DEAL_INTERVAL = 100; // 0.1s between cards
-
-/** Calculate total deal animation duration */
-const calculateDealAnimationDuration = (cardCount: number): number => {
-  if (cardCount === 0) return 0;
-  // Last card starts at (cardCount - 1) * interval, then plays for CARD_DEAL_DURATION
-  return (cardCount - 1) * CARD_DEAL_INTERVAL + CARD_DEAL_DURATION;
-};
 
 export interface HandProps {
   /** Array of cards in hand (should be 5 cards) */
@@ -129,7 +119,7 @@ export const Hand: React.FC<HandProps> = ({
 
       // Check if we're at max selection and trying to add more
       const isCurrentlySelected = selectedCardIds.includes(cardId);
-      if (!isCurrentlySelected && selectedCardIds.length >= MAX_SELECTED_CARDS) {
+      if (!isCurrentlySelected && selectedCardIds.length >= MAX_SELECTABLE_CARDS) {
         return;
       }
 

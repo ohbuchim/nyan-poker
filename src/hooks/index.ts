@@ -11,3 +11,5 @@ export {
   STORAGE_VERSION,
   STORAGE_KEYS,
 } from './useLocalStorage';
+
+export { useSoundPlayedFlag } from './useSoundPlayedFlag';
