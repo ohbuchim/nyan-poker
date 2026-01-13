@@ -98,7 +98,7 @@ export function removeItem(key: string): boolean {
  * @param fromVersion - 古いバージョン番号
  * @returns マイグレーション後のデータまたはnull
  */
-function migrateData<T>(data: unknown, fromVersion: number): T | null {
+function migrateData<T>(_data: unknown, fromVersion: number): T | null {
   // 現在はバージョン1のみなので、古いバージョンからの変換は行わない
   // 将来のバージョンアップ時にここにマイグレーションロジックを追加
   console.warn(`Cannot migrate data from version ${fromVersion} to ${STORAGE_VERSION}`);
