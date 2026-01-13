@@ -6,4 +6,9 @@ describe('modals index exports', () => {
     expect(modalsExports.RulesModal).toBeDefined();
     expect(typeof modalsExports.RulesModal).toBe('function');
   });
+
+  it('exports SettingsModal component', () => {
+    expect(modalsExports.SettingsModal).toBeDefined();
+    expect(typeof modalsExports.SettingsModal).toBe('function');
+  });
 });
