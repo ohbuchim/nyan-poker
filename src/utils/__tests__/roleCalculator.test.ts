@@ -337,6 +337,24 @@ describe('calculateRole', () => {
       // sortedColorCountsはレアリティ順（茶トラ > キジトラ）でソートされる
       expect(role.name).toBe('茶トラ×キジトラツーペア');
     });
+
+    it('サバトラ×茶トラツーペア（69pt）を正しく判定できる', () => {
+      const cards = [
+        createCard(200, 8, 1), // サバトラ×2（レアリティ7）
+        createCard(201, 8, 1),
+        createCard(202, 0, 1), // 茶トラ×2（レアリティ3）
+        createCard(203, 0, 1),
+        createCard(204, 1, 1), // 三毛
+      ];
+      const role = calculateRole(cards);
+      expect(role.type).toBe('twoPair');
+      // サバトラ（レアリティ7）> 茶トラ（レアリティ3）なので、サバトラが先
+      expect(role.name).toBe('サバトラ×茶トラツーペア');
+      // スコア = 7 + 3 = 10, ポイント = 6.55 * 10 + 3.35 = 68.85 => 69
+      expect(role.points).toBe(69);
+      // ワンペアではなくツーペアであることを確認
+      expect(role.type).not.toBe('onePair');
+    });
   });
 
   describe('ワンペア（2枚同色、残り3枚が異なる色）', () => {

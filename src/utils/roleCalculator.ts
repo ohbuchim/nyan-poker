@@ -56,6 +56,14 @@ export function analyzeHand(cards: Card[]): HandAnalysis {
 /**
  * 手札から役を判定する
  * 成立可能なすべての役を列挙し、最もポイントが高い役を返す
+ *
+ * 判定ロジック：
+ * 1. すべての成立可能な役を候補として列挙する
+ * 2. 候補をポイントの高い順にソートする
+ * 3. 最もポイントが高い役を返す
+ *
+ * 例：サバトラ×茶トラのツーペア（69pt）と茶トラワンペア（5pt）が同時に成立する状況では、
+ * 両方が候補に入るが、ツーペアの方が高ポイントなのでツーペアが返される
  */
 export function calculateRole(cards: Card[]): Role {
   if (cards.length !== 5) {
@@ -166,7 +174,8 @@ export function calculateRole(cards: Card[]): Role {
     matchingCardIds: [],
   });
 
-  // 最もポイントが高い役を返す
+  // すべての候補役をポイントの高い順にソートし、最高点の役を返す
+  // これにより、複数の役が成立する場合でも、必ず最もポイントが高い役が選ばれる
   candidates.sort((a, b) => b.points - a.points);
   return candidates[0];
 }

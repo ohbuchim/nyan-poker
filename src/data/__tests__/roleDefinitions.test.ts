@@ -10,7 +10,6 @@ import {
   calculateTwoPairPoints,
   calculateFullHousePoints,
   NO_PAIR,
-  ROLE_TYPE_PRIORITY,
 } from '../roleDefinitions';
 
 describe('roleDefinitions', () => {
@@ -244,25 +243,6 @@ describe('roleDefinitions', () => {
         name: 'ノーペア',
         points: 0,
       });
-    });
-  });
-
-  describe('ROLE_TYPE_PRIORITY', () => {
-    it('should have 8 role types', () => {
-      expect(ROLE_TYPE_PRIORITY).toHaveLength(8);
-    });
-
-    it('should have correct priority order', () => {
-      expect(ROLE_TYPE_PRIORITY).toEqual([
-        'flush',
-        'fullHouse',
-        'fourColor',
-        'fur',
-        'threeColor',
-        'twoPair',
-        'onePair',
-        'noPair',
-      ]);
     });
   });
 

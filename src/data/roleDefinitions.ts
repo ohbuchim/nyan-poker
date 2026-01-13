@@ -1,7 +1,6 @@
 // data/roleDefinitions.ts
 
 import type { ColorCode, FurCode } from '../types/card';
-import type { RoleType } from '../types/role';
 
 /** 毛色のレアリティスコア（ポイント計算用） */
 export const COLOR_RARITY: Record<ColorCode, number> = {
@@ -125,15 +124,3 @@ export function calculateFullHousePoints(threeColor: ColorCode, twoColor: ColorC
 
 // === ノーペア ===
 export const NO_PAIR = { name: 'ノーペア', points: 0 };
-
-/** 役タイプ別のヘルパー定数 */
-export const ROLE_TYPE_PRIORITY: RoleType[] = [
-  'flush',
-  'fullHouse',
-  'fourColor',
-  'fur',
-  'threeColor',
-  'twoPair',
-  'onePair',
-  'noPair',
-];
