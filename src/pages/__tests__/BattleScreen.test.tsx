@@ -387,3 +387,263 @@ describe('BattleScreen index export', () => {
     expect(BattleScreen).toBeDefined();
   });
 });
+
+describe('BattleScreen Card Exchange', () => {
+  const createDefaultProps = () => ({
+    onGameEnd: vi.fn(),
+    onRulesClick: vi.fn(),
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+
+    // Mock drawCards to return predictable hands
+    let callCount = 0;
+    vi.spyOn(deckModule, 'drawCards').mockImplementation((count: number) => {
+      const cards: Card[] = [];
+      const startId = callCount * 10;
+      for (let i = 0; i < count; i++) {
+        cards.push({
+          id: startId + i,
+          image: `/images/image_${String(startId + i).padStart(3, '0')}.jpg`,
+          color: (i % 12) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11,
+          fur: (i % 2) as 0 | 1,
+        });
+      }
+      callCount++;
+      return cards;
+    });
+
+    vi.spyOn(roleCalculatorModule, 'calculateRole').mockReturnValue({
+      type: 'onePair',
+      name: 'OnePair',
+      points: 5,
+      matchingCardIds: [0, 1],
+    });
+
+    vi.spyOn(roleCalculatorModule, 'determineWinner').mockReturnValue('win');
+
+    vi.spyOn(dealerAIModule, 'decideDealerExchange').mockReturnValue({
+      cardsToExchange: [],
+      reason: 'No exchange',
+    });
+
+    vi.spyOn(dealerAIModule, 'executeDealerExchange').mockImplementation(
+      (hand: Card[]) => hand
+    );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  it('handles card exchange with selected cards', async () => {
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    // Wait for initial deal
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    // Click on first card to select
+    const cardButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.includes('猫')
+    );
+    if (cardButtons.length > 0) {
+      fireEvent.click(cardButtons[0]);
+    }
+
+    // Click exchange button
+    const exchangeButton = screen.getByText('交換する');
+    fireEvent.click(exchangeButton);
+
+    // Wait for exchange animations and reveal
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    // Role should be calculated
+    expect(roleCalculatorModule.calculateRole).toHaveBeenCalled();
+  });
+
+  it('clears selection when clear button is clicked', async () => {
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    // Click on cards to select
+    const cardButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.includes('猫')
+    );
+    if (cardButtons.length > 0) {
+      fireEvent.click(cardButtons[0]);
+    }
+
+    // Wait for selection to register
+    await act(async () => {
+      vi.advanceTimersByTime(100);
+    });
+
+    // Click clear button (in inline variant it shows as '解除')
+    const clearButton = screen.getByText('解除');
+    fireEvent.click(clearButton);
+
+    // Selection should be cleared (exchange button text should change)
+    expect(screen.getByText('交換する')).toBeInTheDocument();
+  });
+
+  it('handles lose result', async () => {
+    vi.spyOn(roleCalculatorModule, 'determineWinner').mockReturnValue('lose');
+
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    const skipButton = screen.getByText('交換しない');
+    fireEvent.click(skipButton);
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(screen.getByText('LOSE')).toBeInTheDocument();
+  });
+
+  it('handles draw result', async () => {
+    vi.spyOn(roleCalculatorModule, 'determineWinner').mockReturnValue('draw');
+
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    const skipButton = screen.getByText('交換しない');
+    fireEvent.click(skipButton);
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(screen.getByText('DRAW')).toBeInTheDocument();
+  });
+
+  it('handles dealer exchange with cards', async () => {
+    vi.spyOn(dealerAIModule, 'decideDealerExchange').mockReturnValue({
+      cardsToExchange: [10],
+      reason: 'Exchange weak card',
+    });
+
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    const skipButton = screen.getByText('交換しない');
+    fireEvent.click(skipButton);
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(dealerAIModule.decideDealerExchange).toHaveBeenCalled();
+    expect(dealerAIModule.executeDealerExchange).toHaveBeenCalled();
+  });
+
+  it('completes all 5 rounds and calls onGameEnd', async () => {
+    const props = createDefaultProps();
+    renderWithSettings(<BattleScreen {...props} />);
+
+    // Play through 5 rounds
+    for (let round = 1; round <= 5; round++) {
+      // Wait for deal
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Skip exchange
+      const skipButton = screen.getByText('交換しない');
+      fireEvent.click(skipButton);
+
+      // Wait for reveal
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      // Close overlay
+      const okButton = screen.getByText('OK');
+      fireEvent.click(okButton);
+
+      if (round < 5) {
+        // Click next round
+        const nextButton = screen.getByText('次のラウンドへ');
+        fireEvent.click(nextButton);
+
+        // Wait for next deal
+        await act(async () => {
+          vi.advanceTimersByTime(500);
+        });
+      } else {
+        // Last round - click finish
+        const finishButton = screen.getByText('結果を見る');
+        fireEvent.click(finishButton);
+
+        expect(props.onGameEnd).toHaveBeenCalled();
+      }
+    }
+  });
+
+  it('does not allow next round when at last round', async () => {
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    // Play through to round 5
+    for (let round = 1; round < 5; round++) {
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      const skipButton = screen.getByText('交換しない');
+      fireEvent.click(skipButton);
+
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      const okButton = screen.getByText('OK');
+      fireEvent.click(okButton);
+
+      const nextButton = screen.getByText('次のラウンドへ');
+      fireEvent.click(nextButton);
+
+      await act(async () => {
+        vi.advanceTimersByTime(500);
+      });
+    }
+
+    // Now at round 5
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    const skipButton = screen.getByText('交換しない');
+    fireEvent.click(skipButton);
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    // Close overlay first
+    const okButton = screen.getByText('OK');
+    fireEvent.click(okButton);
+
+    // Should show finish button instead of next round
+    expect(screen.getByText('結果を見る')).toBeInTheDocument();
+    expect(screen.queryByText('次のラウンドへ')).not.toBeInTheDocument();
+  });
+});

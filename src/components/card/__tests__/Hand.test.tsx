@@ -282,6 +282,66 @@ describe('Hand', () => {
       const enterCards = container.querySelectorAll('[class*="card--enter"]');
       expect(enterCards.length).toBe(0);
     });
+
+    it('does not apply enter animation to matching cards (Issue #62 fix)', () => {
+      // This test verifies the fix for Issue #62: Two-pair animation bug
+      // When cards are both new and matching, they should show matching animation
+      // instead of enter animation to avoid CSS animation conflict
+      const cards = createMockCards();
+      const { container } = render(
+        <Hand cards={cards} newCardIds={[0, 1]} matchingCardIds={[0, 1, 2, 3]} />
+      );
+
+      // New cards that are also matching should NOT have enter animation
+      const enterCards = container.querySelectorAll('[class*="card--enter"]');
+      expect(enterCards.length).toBe(0);
+
+      // All matching cards should have matching class
+      const matchingCards = container.querySelectorAll('[class*="card--matching"]');
+      expect(matchingCards.length).toBe(4);
+    });
+
+    it('applies enter animation to new cards that are not matching', () => {
+      const cards = createMockCards();
+      const { container } = render(
+        <Hand cards={cards} newCardIds={[0, 1]} matchingCardIds={[2, 3]} />
+      );
+
+      // New cards that are NOT matching should have enter animation
+      const enterCards = container.querySelectorAll('[class*="card--enter"]');
+      expect(enterCards.length).toBe(2);
+
+      // Matching cards should have matching class
+      const matchingCards = container.querySelectorAll('[class*="card--matching"]');
+      expect(matchingCards.length).toBe(2);
+    });
+
+    it('matching animation takes priority over enter animation for new matching cards', () => {
+      // Simulates the scenario: exchange cards to get two-pair
+      // Cards 0, 1 were exchanged (newCardIds), all 4 cards form two-pair (matchingCardIds)
+      const cards = createMockCards();
+      const { container } = render(
+        <Hand cards={cards} newCardIds={[0, 1]} matchingCardIds={[0, 1, 2, 3]} />
+      );
+
+      // Get all card wrappers and then find the actual card elements within
+      const cardWrappers = container.querySelectorAll('[class*="hand__card-wrapper"]');
+
+      // Card 0 is both new and matching - should have matching but NOT enter
+      const card0 = cardWrappers[0].querySelector('[class*="card_"]');
+      expect(card0?.className).toContain('card--matching');
+      expect(card0?.className).not.toContain('card--enter');
+
+      // Card 1 is both new and matching - should have matching but NOT enter
+      const card1 = cardWrappers[1].querySelector('[class*="card_"]');
+      expect(card1?.className).toContain('card--matching');
+      expect(card1?.className).not.toContain('card--enter');
+
+      // Card 2 is matching but not new - should only have matching
+      const card2 = cardWrappers[2].querySelector('[class*="card_"]');
+      expect(card2?.className).toContain('card--matching');
+      expect(card2?.className).not.toContain('card--enter');
+    });
   });
 
   describe('Deal Animation Callback', () => {

@@ -156,10 +156,14 @@ export const Hand: React.FC<HandProps> = ({
         const isExchanging = exchangingCardIds.includes(card.id);
 
         // Determine animation type for this specific card
+        // Note: When a card is matching (part of winning hand), we skip the enter animation
+        // to allow the matching glow animation (cardGlowWithScale) to display properly.
+        // This fixes the issue where exchanged cards had no glow animation due to CSS
+        // animation property being overwritten by card--enter class.
         let cardAnimation: CardAnimationType = animationType;
         if (isExchanging) {
           cardAnimation = 'exchange';
-        } else if (isNew && animationType === 'none') {
+        } else if (isNew && animationType === 'none' && !isMatching) {
           cardAnimation = 'enter';
         }
 
