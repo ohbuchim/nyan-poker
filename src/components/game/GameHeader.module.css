@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   margin-bottom: var(--space-5, 20px);
   flex-wrap: wrap;
   gap: var(--space-3, 12px);
@@ -61,10 +61,10 @@
 }
 
 .rules-button {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  min-height: 48px;
+  width: var(--min-tap-size, 44px);
+  height: var(--min-tap-size, 44px);
+  min-width: var(--min-tap-size, 44px);
+  min-height: var(--min-tap-size, 44px);
   padding: 0;
   border-radius: var(--radius-full, 9999px);
   display: flex;
@@ -85,4 +85,78 @@
 .rules-button:focus-visible {
   outline: 3px solid var(--color-primary-light, #e8c9a0);
   outline-offset: 2px;
+}
+
+/* ==================== */
+/* Responsive Styles */
+/* ==================== */
+
+/* スマートフォン (767px以下) - ヘッダー簡略化 */
+@media (max-width: 767px) {
+  .header {
+    gap: var(--space-2, 8px);
+    margin-bottom: var(--space-3, 12px);
+  }
+
+  .round-info {
+    flex-wrap: wrap;
+    gap: var(--space-1, 4px);
+  }
+
+  .round-badge {
+    padding: var(--space-1, 4px) var(--space-3, 12px);
+    font-size: var(--font-size-sm, 13px);
+  }
+
+  .progress-bar {
+    max-width: 120px;
+    margin: 0 var(--space-2, 8px);
+    height: 4px;
+  }
+
+  .score-display {
+    padding: var(--space-1, 4px) var(--space-3, 12px);
+    gap: var(--space-1, 4px);
+  }
+
+  .score-label {
+    font-size: var(--font-size-xs, 11px);
+  }
+
+  .score-value {
+    font-size: var(--font-size-lg, 20px);
+  }
+
+  .rules-button {
+    font-size: var(--font-size-md, 16px);
+  }
+}
+
+/* タブレット (768px以上) */
+@media (min-width: 768px) {
+  .header {
+    gap: var(--space-3, 12px);
+  }
+
+  .progress-bar {
+    max-width: 150px;
+  }
+}
+
+/* PC (1024px以上) */
+@media (min-width: 1024px) {
+  .header {
+    gap: var(--space-4, 16px);
+  }
+
+  .progress-bar {
+    max-width: 200px;
+  }
+
+  .rules-button {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+  }
 }

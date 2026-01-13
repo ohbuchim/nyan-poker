@@ -22,46 +22,78 @@
   --color-danger: #c46b6b; /* 敗北（赤） */
 
   /* ==================== */
+  /* レスポンシブブレークポイント */
+  /* ==================== */
+
+  /* ブレークポイント定義
+   * --breakpoint-sm: 375px (スマートフォン)
+   * --breakpoint-md: 768px (タブレット)
+   * --breakpoint-lg: 1024px (PC、推奨)
+   */
+
+  /* ==================== */
   /* サイズ定義 */
   /* ==================== */
 
-  /* カードサイズ - PC */
+  /* カードサイズ - PC (1024px+) */
   --card-width-pc: 150px;
   --card-height-pc: 200px;
+  --card-gap-pc: 16px;
 
-  /* カードサイズ - SP */
+  /* カードサイズ - タブレット (768px-1023px) */
+  --card-width-tablet: 120px;
+  --card-height-tablet: 160px;
+  --card-gap-tablet: 12px;
+
+  /* カードサイズ - スマートフォン (375px-767px) */
   --card-width-sp: 80px;
   --card-height-sp: 107px;
+  --card-gap-sp: 8px;
 
   /* ディーラーカード（80%サイズ） */
   --dealer-card-width-pc: 120px;
   --dealer-card-height-pc: 160px;
+  --dealer-card-width-tablet: 96px;
+  --dealer-card-height-tablet: 128px;
+  --dealer-card-width-sp: 64px;
+  --dealer-card-height-sp: 86px;
 
   /* トランジション */
   --transition-fast: 0.2s;
   --transition-normal: 0.3s;
 
+  /* タッチ操作用最小サイズ */
+  --min-tap-size: 44px;
+
   /* ==================== */
-  /* レスポンシブ */
+  /* レスポンシブ変数（デフォルト: スマートフォン） */
   /* ==================== */
 
-  /* デフォルト: スマートフォン */
   --card-width: var(--card-width-sp);
   --card-height: var(--card-height-sp);
+  --card-gap: var(--card-gap-sp);
+  --dealer-card-width: var(--dealer-card-width-sp);
+  --dealer-card-height: var(--dealer-card-height-sp);
 }
 
-/* タブレット */
+/* タブレット (768px以上) */
 @media (min-width: 768px) {
   :root {
-    --card-width: 120px;
-    --card-height: 160px;
+    --card-width: var(--card-width-tablet);
+    --card-height: var(--card-height-tablet);
+    --card-gap: var(--card-gap-tablet);
+    --dealer-card-width: var(--dealer-card-width-tablet);
+    --dealer-card-height: var(--dealer-card-height-tablet);
   }
 }
 
-/* PC（推奨） */
+/* PC (1024px以上) */
 @media (min-width: 1024px) {
   :root {
     --card-width: var(--card-width-pc);
     --card-height: var(--card-height-pc);
+    --card-gap: var(--card-gap-pc);
+    --dealer-card-width: var(--dealer-card-width-pc);
+    --dealer-card-height: var(--dealer-card-height-pc);
   }
 }
