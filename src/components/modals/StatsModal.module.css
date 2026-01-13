@@ -1,0 +1,152 @@
+/* StatsModal styles */
+
+.container {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Section */
+.section {
+  margin-bottom: var(--space-6, 24px);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-md, 16px);
+  color: var(--color-primary, #d4a574);
+  margin-bottom: var(--space-3, 12px);
+  padding-bottom: var(--space-2, 8px);
+  border-bottom: 1px solid var(--color-card-bg, #4a4540);
+  line-height: var(--line-height-normal, 1.5);
+}
+
+/* Stats Grid - Primary */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3, 12px);
+}
+
+.statsItem {
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-4, 16px) var(--space-3, 12px);
+  text-align: center;
+}
+
+.statsValue {
+  display: block;
+  font-size: var(--font-size-2xl, 32px);
+  font-weight: 700;
+  color: var(--color-primary, #d4a574);
+  margin-bottom: var(--space-1, 4px);
+  line-height: var(--line-height-tight, 1.3);
+}
+
+.statsLabel {
+  display: block;
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-text-muted, #c4bdb3);
+  line-height: var(--line-height-normal, 1.5);
+}
+
+/* Stats Grid - Secondary (for losses/draws) */
+.statsGridSecondary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3, 12px);
+  margin-top: var(--space-3, 12px);
+}
+
+.statsItemSmall {
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-3, 12px) var(--space-2, 8px);
+  text-align: center;
+}
+
+.statsValueSmall {
+  display: block;
+  font-size: var(--font-size-lg, 20px);
+  font-weight: 700;
+  color: var(--color-primary, #d4a574);
+  margin-bottom: var(--space-1, 4px);
+  line-height: var(--line-height-tight, 1.3);
+}
+
+.statsLabelSmall {
+  display: block;
+  font-size: var(--font-size-xs, 11px);
+  color: var(--color-text-muted, #c4bdb3);
+  line-height: var(--line-height-normal, 1.5);
+}
+
+/* Roles List */
+.rolesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.roleItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3, 12px) var(--space-3, 12px);
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-md, 8px);
+}
+
+.roleName {
+  font-size: var(--font-size-base, 14px);
+  color: var(--color-text, #f5f0e8);
+}
+
+.roleCount {
+  font-size: var(--font-size-base, 14px);
+  font-weight: 600;
+  color: var(--color-primary, #d4a574);
+}
+
+/* Scrollbar styling */
+.container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: var(--color-bg, #2d2a26);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-sm, 4px);
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary, #d4a574);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statsValue {
+    font-size: var(--font-size-xl, 24px);
+  }
+}
+
+@media (max-width: 400px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statsGridSecondary {
+    grid-template-columns: 1fr;
+  }
+}
