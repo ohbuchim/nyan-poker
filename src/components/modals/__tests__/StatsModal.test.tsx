@@ -6,7 +6,14 @@ import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { StatsModal } from '../StatsModal';
 import { StatsProvider } from '../../../context/StatsContext';
-import { STORAGE_KEY, CURRENT_VERSION } from '../../../types';
+import { STORAGE_KEYS, STORAGE_VERSION } from '../../../hooks/useLocalStorage';
+
+/**
+ * Helper function to set localStorage data in the new versioned format
+ */
+function setVersionedStorageData<T>(key: string, data: T): void {
+  localStorage.setItem(key, JSON.stringify({ version: STORAGE_VERSION, data }));
+}
 
 /** Wrapper component that provides StatsContext */
 function TestWrapper({ children }: { children: ReactNode }) {
@@ -139,26 +146,18 @@ describe('StatsModal', () => {
 
   describe('Stats from localStorage', () => {
     it('displays solo stats from storage', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 42, highScore: 156, totalScore: 2827 },
-          battle: { playCount: 0, wins: 0, losses: 0 },
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.SOLO_STATS, {
+        playCount: 42,
+        highScore: 156,
+        totalScore: 2827,
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       expect(screen.getByTestId('solo-play-count')).toHaveTextContent('42');
       expect(screen.getByTestId('solo-high-score')).toHaveTextContent('156');
@@ -169,26 +168,18 @@ describe('StatsModal', () => {
     });
 
     it('displays battle stats from storage', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 28, wins: 18, losses: 8 },
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.BATTLE_STATS, {
+        playCount: 28,
+        wins: 18,
+        losses: 8,
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       expect(screen.getByTestId('battle-play-count')).toHaveTextContent('28');
       expect(screen.getByTestId('battle-wins')).toHaveTextContent('18');
@@ -200,35 +191,23 @@ describe('StatsModal', () => {
     });
 
     it('displays role achievements from storage', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 0, wins: 0, losses: 0 },
-          roleAchievements: {
-            flush: 3,
-            fourColor: 15,
-            fullHouse: 23,
-            threeColor: 47,
-            twoPair: 32,
-            onePair: 89,
-            fur: 29,
-            noPair: 10,
-          },
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.ACHIEVEMENTS, {
+        flush: 3,
+        fourColor: 15,
+        fullHouse: 23,
+        threeColor: 47,
+        twoPair: 32,
+        onePair: 89,
+        fur: 29,
+        noPair: 10,
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       expect(screen.getByTestId('role-count-flush')).toHaveTextContent('3回');
       expect(screen.getByTestId('role-count-fourColor')).toHaveTextContent(
@@ -328,105 +307,69 @@ describe('StatsModal', () => {
 
   describe('Edge cases', () => {
     it('handles zero draws correctly (all wins or losses)', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 10, wins: 10, losses: 0 }, // All wins, no draws
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.BATTLE_STATS, {
+        playCount: 10,
+        wins: 10,
+        losses: 0, // All wins, no draws
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       expect(screen.getByTestId('battle-draws')).toHaveTextContent('-');
     });
 
     it('handles 100% win rate correctly', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 5, wins: 5, losses: 0 },
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.BATTLE_STATS, {
+        playCount: 5,
+        wins: 5,
+        losses: 0,
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       expect(screen.getByTestId('battle-win-rate')).toHaveTextContent('100.0%');
     });
 
     it('handles 0% win rate correctly', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 5, wins: 0, losses: 5 },
-          roleAchievements: {},
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.BATTLE_STATS, {
+        playCount: 5,
+        wins: 0,
+        losses: 5,
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       // 0% win rate should show placeholder
       expect(screen.getByTestId('battle-win-rate')).toHaveTextContent('-');
     });
 
     it('handles partial role achievements', () => {
-      vi.useFakeTimers();
-
-      const savedData = {
-        settings: { soundEnabled: true, volume: 80 },
-        stats: {
-          solo: { playCount: 0, highScore: 0, totalScore: 0 },
-          battle: { playCount: 0, wins: 0, losses: 0 },
-          roleAchievements: {
-            flush: 1,
-            // Other roles not present
-          },
-        },
-        version: CURRENT_VERSION,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
+      // Set up localStorage before rendering
+      setVersionedStorageData(STORAGE_KEYS.ACHIEVEMENTS, {
+        flush: 1,
+        // Other roles not present
+      });
 
       render(
         <TestWrapper>
           <StatsModal isOpen={true} onClose={vi.fn()} />
         </TestWrapper>
       );
-
-      vi.runAllTimers();
 
       expect(screen.getByTestId('role-count-flush')).toHaveTextContent('1回');
       expect(screen.getByTestId('role-count-fourColor')).toHaveTextContent('-');
