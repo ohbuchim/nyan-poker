@@ -1,0 +1,203 @@
+/* Settings Modal Content */
+.settingsContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+/* Setting Item */
+.settingItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4, 16px) 0;
+  border-bottom: 1px solid var(--color-card-bg, #4a4540);
+}
+
+.settingItem:last-of-type {
+  border-bottom: none;
+}
+
+.settingLabel {
+  font-size: var(--font-size-md, 16px);
+  color: var(--color-text, #f5f0e8);
+  transition: opacity var(--transition-fast, 0.2s);
+}
+
+.settingLabel.disabled {
+  opacity: 0.5;
+}
+
+/* Volume Control */
+.volumeControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 12px);
+}
+
+.volumeSlider {
+  width: 120px;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-sm, 4px);
+  outline: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast, 0.2s);
+}
+
+.volumeSlider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.volumeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--color-primary, #d4a574);
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  transition: transform var(--transition-fast, 0.2s);
+}
+
+.volumeSlider:not(:disabled)::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.volumeSlider:disabled::-webkit-slider-thumb {
+  background: var(--color-text-muted, #a89f94);
+  cursor: not-allowed;
+}
+
+.volumeSlider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--color-primary, #d4a574);
+  border-radius: var(--radius-full, 9999px);
+  border: none;
+  cursor: pointer;
+  transition: transform var(--transition-fast, 0.2s);
+}
+
+.volumeSlider:not(:disabled)::-moz-range-thumb:hover {
+  transform: scale(1.1);
+}
+
+.volumeSlider:disabled::-moz-range-thumb {
+  background: var(--color-text-muted, #a89f94);
+  cursor: not-allowed;
+}
+
+/* Firefox track styles */
+.volumeSlider::-moz-range-track {
+  background: var(--color-card-bg, #4a4540);
+  border-radius: var(--radius-sm, 4px);
+  height: 6px;
+}
+
+.volumeValue {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-text-muted, #a89f94);
+  min-width: 40px;
+  text-align: right;
+  transition: opacity var(--transition-fast, 0.2s);
+}
+
+.volumeValue.disabled {
+  opacity: 0.5;
+}
+
+/* Focus styles for accessibility */
+.volumeSlider:focus-visible {
+  outline: 2px solid var(--color-primary, #d4a574);
+  outline-offset: 4px;
+}
+
+/* Confirmation Dialog */
+.confirmDialog {
+  margin-top: var(--space-4, 16px);
+  padding: var(--space-4, 16px);
+  background: var(--color-bg, #2d2a26);
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--color-danger, #c46b6b);
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirmMessage {
+  font-size: var(--font-size-md, 16px);
+  color: var(--color-text, #f5f0e8);
+  margin: 0 0 var(--space-2, 8px) 0;
+  font-weight: 600;
+}
+
+.confirmSubMessage {
+  font-size: var(--font-size-sm, 13px);
+  color: var(--color-text-muted, #a89f94);
+  margin: 0 0 var(--space-4, 16px) 0;
+}
+
+.confirmButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3, 12px);
+}
+
+/* Notification */
+.notification {
+  margin-top: var(--space-4, 16px);
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  background: var(--color-success, #7eb87e);
+  color: var(--color-bg, #2d2a26);
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-sm, 13px);
+  font-weight: 600;
+  text-align: center;
+  animation: fadeInOut 3s ease-out forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .volumeSlider {
+    width: 80px;
+  }
+
+  .confirmButtons {
+    flex-direction: column;
+    gap: var(--space-2, 8px);
+  }
+
+  .confirmButtons button {
+    width: 100%;
+  }
+}
