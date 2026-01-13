@@ -89,6 +89,25 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     [phase]
   );
 
+  const revealRole = useCallback((currentHand: Card[]) => {
+    setPhase('revealing');
+
+    // Wait for ROLE_HIGHLIGHT_DELAY before showing role highlight
+    setTimeout(() => {
+      const role = calculateRole(currentHand);
+      setCurrentRole(role);
+
+      const roundHistory: RoundHistory = {
+        round,
+        playerRole: role,
+        playerPoints: role.points,
+      };
+      setHistory((prev) => [...prev, roundHistory]);
+      setScore((prev) => prev + role.points);
+      setPhase('result');
+    }, ROLE_HIGHLIGHT_DELAY);
+  }, [round]);
+
   const handleExchange = useCallback(() => {
     if (phase !== 'selecting' || selectedCardIds.length === 0) return;
 
@@ -101,20 +120,20 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     const newCards = drawCards(selectedCardIds.length, usedCardIds);
     setUsedCardIds((prev) => [...prev, ...newCards.map((c) => c.id)]);
 
+    // Calculate new hand immediately (not relying on state)
+    const updatedHand = [...hand];
+    let newCardIndex = 0;
+    for (let i = 0; i < updatedHand.length; i++) {
+      if (selectedCardIds.includes(updatedHand[i].id)) {
+        updatedHand[i] = newCards[newCardIndex];
+        newCardIndex++;
+      }
+    }
+
     // Wait for exit animation (0.3s) before replacing cards
     setTimeout(() => {
       // Replace cards in hand
-      setHand((prev) => {
-        const newHand = [...prev];
-        let newCardIndex = 0;
-        for (let i = 0; i < newHand.length; i++) {
-          if (selectedCardIds.includes(newHand[i].id)) {
-            newHand[i] = newCards[newCardIndex];
-            newCardIndex++;
-          }
-        }
-        return newHand;
-      });
+      setHand(updatedHand);
 
       // Clear exchanging cards and set new card IDs for enter animation
       setExchangingCardIds([]);
@@ -123,51 +142,16 @@ export const GameScreen: React.FC<GameScreenProps> = ({
 
       // Wait for enter animation (0.4s) before revealing role
       setTimeout(() => {
-        revealRole();
+        revealRole(updatedHand);
       }, EXCHANGE_ANIMATION_DELAY);
     }, 300); // Exit animation duration
-  }, [phase, selectedCardIds, usedCardIds, playFlip]);
+  }, [phase, selectedCardIds, usedCardIds, hand, playFlip, revealRole]);
 
   const handleSkipExchange = useCallback(() => {
     if (phase !== 'selecting') return;
     setSelectedCardIds([]);
-    revealRole();
-  }, [phase]);
-
-  const revealRole = useCallback(() => {
-    setPhase('revealing');
-
-    // Wait for ROLE_HIGHLIGHT_DELAY before showing role highlight
-    setTimeout(() => {
-      const role = calculateRole(hand.length === 5 ? hand : []);
-      setCurrentRole(role);
-
-      const roundHistory: RoundHistory = {
-        round,
-        playerRole: role,
-        playerPoints: role.points,
-      };
-      setHistory((prev) => [...prev, roundHistory]);
-      setScore((prev) => prev + role.points);
-      setPhase('result');
-    }, ROLE_HIGHLIGHT_DELAY);
-  }, [hand, round]);
-
-  useEffect(() => {
-    if (phase === 'revealing' && hand.length === 5 && !currentRole) {
-      const role = calculateRole(hand);
-      setCurrentRole(role);
-
-      const roundHistory: RoundHistory = {
-        round,
-        playerRole: role,
-        playerPoints: role.points,
-      };
-      setHistory((prev) => [...prev, roundHistory]);
-      setScore((prev) => prev + role.points);
-      setPhase('result');
-    }
-  }, [phase, hand, currentRole, round]);
+    revealRole(hand);
+  }, [phase, hand, revealRole]);
 
   const handleClearSelection = useCallback(() => {
     setSelectedCardIds([]);

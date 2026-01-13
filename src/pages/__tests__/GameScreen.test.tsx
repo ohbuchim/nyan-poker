@@ -153,8 +153,14 @@ describe('GameScreen', () => {
         skipButton.click();
       });
 
+      // Wait for ROLE_HIGHLIGHT_DELAY (300ms) in GameScreen
       await act(async () => {
-        vi.advanceTimersByTime(200);
+        vi.advanceTimersByTime(400);
+      });
+
+      // Wait for ROLE_NAME_DELAY (200ms) in RoleDisplay
+      await act(async () => {
+        vi.advanceTimersByTime(300);
       });
 
       // Should show the role name
@@ -174,8 +180,9 @@ describe('GameScreen', () => {
         skipButton.click();
       });
 
+      // Wait for ROLE_HIGHLIGHT_DELAY (300ms) + buffer
       await act(async () => {
-        vi.advanceTimersByTime(200);
+        vi.advanceTimersByTime(400);
       });
 
       expect(screen.getByText(/次のラウンドへ/)).toBeInTheDocument();
