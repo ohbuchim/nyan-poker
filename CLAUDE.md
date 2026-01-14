@@ -23,6 +23,56 @@
 - デザイン（色、サイズ、レイアウト）はモックを正とする
 - モックと異なる実装をする場合は、先にモックを更新してから実装する
 
+### CSSモジュール実装の注意点
+
+**重要**: CSSモジュール間で属性セレクタを使ったスタイルオーバーライドは禁止。
+
+#### ❌ やってはいけない実装
+
+親コンポーネントのCSSから、子コンポーネントのスタイルを属性セレクタでオーバーライドしようとする：
+
+```css
+/* Hand.module.css - これは機能しない */
+.hand--dealer [class*='card'] {
+  width: 64px;
+  height: 86px;
+}
+```
+
+**なぜ機能しないか**:
+1. CSSモジュールはクラス名をハッシュ化する（`card` → `Card_card__xY2z3`）
+2. 属性セレクタ `[class*='card']` は不安定で信頼性が低い
+3. CSSモジュールの設計思想（各コンポーネントが自身のスタイルを管理）に反する
+
+#### ✅ 正しい実装
+
+子コンポーネントにプロパティを追加し、コンポーネント内部でスタイルを管理する：
+
+```tsx
+// Card.tsx - プロパティを追加
+interface CardProps {
+  isCompact?: boolean;
+}
+
+// クラス名に条件付きで追加
+isCompact && styles['card--compact'],
+```
+
+```css
+/* Card.module.css - 同じファイル内でスタイル定義 */
+.card--compact {
+  width: 64px;
+  height: 86px;
+}
+```
+
+```tsx
+// Hand.tsx - 親からプロパティを渡す
+<Card card={card} isCompact={isDealer} />
+```
+
+**参考Issue**: #81, #83
+
 ## GitHub
 
 ### ブランチ作成ルール
