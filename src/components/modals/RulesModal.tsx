@@ -87,16 +87,25 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
       </section>
 
       {/* Flush Roles Accordion */}
-      <details
-        className={styles.rulesAccordion}
-        open={flushAccordionOpen}
-        onToggle={handleFlushAccordionToggle}
-      >
-        <summary className={styles.rulesAccordionHeader}>
+      <div className={styles.rulesAccordion}>
+        <button
+          type="button"
+          className={styles.rulesAccordionHeader}
+          onClick={handleFlushAccordionToggle}
+          aria-expanded={flushAccordionOpen}
+          aria-controls="flush-accordion-content"
+        >
           <h3 className={styles.accordionTitle}>役一覧（フラッシュ系）</h3>
-          <span className={styles.accordionIcon} aria-hidden="true" />
-        </summary>
-        <div className={styles.rulesAccordionContent}>
+          <span
+            className={`${styles.accordionIcon} ${flushAccordionOpen ? styles.accordionIconOpen : ''}`}
+            aria-hidden="true"
+          />
+        </button>
+        <div
+          id="flush-accordion-content"
+          className={`${styles.rulesAccordionContent} ${flushAccordionOpen ? styles.rulesAccordionContentOpen : ''}`}
+          hidden={!flushAccordionOpen}
+        >
           <table className={styles.roleTable}>
             <thead>
               <tr>
@@ -116,19 +125,28 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
             </tbody>
           </table>
         </div>
-      </details>
+      </div>
 
       {/* Fur and Color Roles Accordion */}
-      <details
-        className={styles.rulesAccordion}
-        open={furColorAccordionOpen}
-        onToggle={handleFurColorAccordionToggle}
-      >
-        <summary className={styles.rulesAccordionHeader}>
+      <div className={styles.rulesAccordion}>
+        <button
+          type="button"
+          className={styles.rulesAccordionHeader}
+          onClick={handleFurColorAccordionToggle}
+          aria-expanded={furColorAccordionOpen}
+          aria-controls="fur-color-accordion-content"
+        >
           <h3 className={styles.accordionTitle}>役一覧（ファー系・カラー系）</h3>
-          <span className={styles.accordionIcon} aria-hidden="true" />
-        </summary>
-        <div className={styles.rulesAccordionContent}>
+          <span
+            className={`${styles.accordionIcon} ${furColorAccordionOpen ? styles.accordionIconOpen : ''}`}
+            aria-hidden="true"
+          />
+        </button>
+        <div
+          id="fur-color-accordion-content"
+          className={`${styles.rulesAccordionContent} ${furColorAccordionOpen ? styles.rulesAccordionContentOpen : ''}`}
+          hidden={!furColorAccordionOpen}
+        >
           <p className={styles.rulesNote}>
             ※カラー系の役は毛色ごとに異なるポイントがあります（代表的なポイントを表示）
           </p>
@@ -184,7 +202,7 @@ export const RulesModal: React.FC<RulesModalProps> = ({ isOpen, onClose }) => {
             </tbody>
           </table>
         </div>
-      </details>
+      </div>
     </Modal>
   );
 };

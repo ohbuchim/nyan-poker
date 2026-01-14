@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, within, fireEvent } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RulesModal } from '../RulesModal';
 import { FLUSH_ROLES, FUR_ROLES } from '../../../data/roleDefinitions';
@@ -87,8 +87,8 @@ describe('RulesModal', () => {
 
     it('flush accordion is open by default', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
-      const accordion = screen.getByText('役一覧（フラッシュ系）').closest('details');
-      expect(accordion).toHaveAttribute('open');
+      const accordionButton = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ });
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('displays all 12 flush roles', () => {
@@ -103,8 +103,10 @@ describe('RulesModal', () => {
     it('displays flush roles in descending point order', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      const accordion = screen.getByText('役一覧（フラッシュ系）').closest('details');
-      const table = within(accordion!).getByRole('table');
+      const accordionContent = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ })
+        .closest('div')!
+        .querySelector('#flush-accordion-content')!;
+      const table = within(accordionContent as HTMLElement).getByRole('table');
       const rows = within(table).getAllByRole('row');
 
       // Skip header row, check data rows
@@ -132,36 +134,32 @@ describe('RulesModal', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
       // The accordion is controlled via state, verify initial state
-      const accordion = screen.getByText('役一覧（フラッシュ系）').closest('details');
-      expect(accordion).toHaveAttribute('open');
+      const accordionButton = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ });
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
 
       // Content is visible when open
       expect(screen.getByText('サビフラッシュ')).toBeInTheDocument();
     });
 
-    it('calls toggle handler when flush accordion is toggled', () => {
+    it('calls toggle handler when flush accordion button is clicked', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Find the details element for flush accordion
-      const accordion = screen.getByText('役一覧（フラッシュ系）').closest('details');
-      expect(accordion).toBeDefined();
+      // Find the accordion button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ });
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
 
-      // Accordion should be open by default
-      expect(accordion).toHaveAttribute('open');
+      // Click to close
+      await user.click(accordionButton);
 
-      // Dispatch toggle event - this calls handleFlushAccordionToggle
-      // which sets flushAccordionOpen to false
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Accordion should now be closed
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
 
-      // The toggle handler has been called (state updated).
-      // Due to how JSDOM handles details, the open attribute may not change,
-      // but we can verify the handler was called by triggering toggle again.
+      // Click to open again
+      await user.click(accordionButton);
 
-      // Toggle again to verify the state callback works both ways
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
-
-      // The state has toggled twice - no error means handler works
-      expect(accordion).toBeInTheDocument();
+      // Accordion should be open again
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -173,36 +171,38 @@ describe('RulesModal', () => {
 
     it('fur/color accordion is closed by default', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      expect(accordion).not.toHaveAttribute('open');
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('tracks fur/color accordion state correctly', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
       // The fur/color accordion is closed by default
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      expect(accordion).not.toHaveAttribute('open');
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      expect(accordionButton).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('displays note about color-based point variations', () => {
+    it('displays note about color-based point variations', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Open the accordion by dispatching toggle event
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Open the accordion by clicking the button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      await user.click(accordionButton);
 
       expect(
         screen.getByText(/カラー系の役は毛色ごとに異なるポイントがあります/)
       ).toBeInTheDocument();
     });
 
-    it('displays all fur and color role types', () => {
+    it('displays all fur and color role types', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Open the accordion by dispatching toggle event
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Open the accordion by clicking the button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      await user.click(accordionButton);
 
       expect(screen.getByText('フォーカラー')).toBeInTheDocument();
       expect(screen.getByText('フルハウス')).toBeInTheDocument();
@@ -214,12 +214,13 @@ describe('RulesModal', () => {
       expect(screen.getByText('ノーペア')).toBeInTheDocument();
     });
 
-    it('displays correct conditions for roles', () => {
+    it('displays correct conditions for roles', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Open the accordion by dispatching toggle event
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Open the accordion by clicking the button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      await user.click(accordionButton);
 
       expect(screen.getByText('同色4枚')).toBeInTheDocument();
       expect(screen.getByText('同色3枚+別色2枚')).toBeInTheDocument();
@@ -231,12 +232,13 @@ describe('RulesModal', () => {
       expect(screen.getByText('役なし')).toBeInTheDocument();
     });
 
-    it('displays correct point ranges', () => {
+    it('displays correct point ranges', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Open the accordion by dispatching toggle event
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Open the accordion by clicking the button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      await user.click(accordionButton);
 
       expect(screen.getByText('63〜277')).toBeInTheDocument(); // Four Color
       expect(screen.getByText('105〜294')).toBeInTheDocument(); // Full House
@@ -253,8 +255,10 @@ describe('RulesModal', () => {
     it('flush table has correct headers', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      const accordion = screen.getByText('役一覧（フラッシュ系）').closest('details');
-      const table = within(accordion!).getByRole('table');
+      const accordionContent = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ })
+        .closest('div')!
+        .querySelector('#flush-accordion-content')!;
+      const table = within(accordionContent as HTMLElement).getByRole('table');
 
       expect(within(table).getByText('役名')).toBeInTheDocument();
       expect(within(table).getByText('条件')).toBeInTheDocument();
@@ -264,38 +268,46 @@ describe('RulesModal', () => {
     it('flush table has 12 data rows', () => {
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      const accordion = screen.getByText('役一覧（フラッシュ系）').closest('details');
-      const table = within(accordion!).getByRole('table');
+      const accordionContent = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ })
+        .closest('div')!
+        .querySelector('#flush-accordion-content')!;
+      const table = within(accordionContent as HTMLElement).getByRole('table');
       const rows = within(table).getAllByRole('row');
 
       // 1 header row + 12 data rows
       expect(rows).toHaveLength(13);
     });
 
-    it('fur/color table has correct headers', () => {
+    it('fur/color table has correct headers', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Open the accordion by dispatching toggle event
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Open the accordion by clicking the button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      await user.click(accordionButton);
 
-      const tables = within(accordion!).getAllByRole('table');
-      const table = tables[0];
+      const accordionContent = accordionButton
+        .closest('div')!
+        .querySelector('#fur-color-accordion-content')!;
+      const table = within(accordionContent as HTMLElement).getByRole('table');
 
       expect(within(table).getByText('役名')).toBeInTheDocument();
       expect(within(table).getByText('条件')).toBeInTheDocument();
       expect(within(table).getByText('ポイント')).toBeInTheDocument();
     });
 
-    it('fur/color table has 8 data rows', () => {
+    it('fur/color table has 8 data rows', async () => {
+      const user = userEvent.setup();
       render(<RulesModal isOpen={true} onClose={vi.fn()} />);
 
-      // Open the accordion by dispatching toggle event
-      const accordion = screen.getByText('役一覧（ファー系・カラー系）').closest('details');
-      fireEvent(accordion!, new Event('toggle', { bubbles: false }));
+      // Open the accordion by clicking the button
+      const accordionButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+      await user.click(accordionButton);
 
-      const tables = within(accordion!).getAllByRole('table');
-      const table = tables[0];
+      const accordionContent = accordionButton
+        .closest('div')!
+        .querySelector('#fur-color-accordion-content')!;
+      const table = within(accordionContent as HTMLElement).getByRole('table');
       const rows = within(table).getAllByRole('row');
 
       // 1 header row + 8 data rows
@@ -338,6 +350,26 @@ describe('RulesModal', () => {
 
       const accordionIcons = document.querySelectorAll('[aria-hidden="true"]');
       expect(accordionIcons.length).toBeGreaterThan(0);
+    });
+
+    it('accordion buttons have aria-expanded attribute', () => {
+      render(<RulesModal isOpen={true} onClose={vi.fn()} />);
+
+      const flushButton = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ });
+      const furColorButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+
+      expect(flushButton).toHaveAttribute('aria-expanded');
+      expect(furColorButton).toHaveAttribute('aria-expanded');
+    });
+
+    it('accordion buttons have aria-controls attribute', () => {
+      render(<RulesModal isOpen={true} onClose={vi.fn()} />);
+
+      const flushButton = screen.getByRole('button', { name: /役一覧（フラッシュ系）/ });
+      const furColorButton = screen.getByRole('button', { name: /役一覧（ファー系・カラー系）/ });
+
+      expect(flushButton).toHaveAttribute('aria-controls', 'flush-accordion-content');
+      expect(furColorButton).toHaveAttribute('aria-controls', 'fur-color-accordion-content');
     });
   });
 });
