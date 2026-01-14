@@ -54,12 +54,8 @@
   transform: none;
 }
 
-/* Dealer card info - same font size as player, compact layout */
-/* min-height: auto により、コンテンツに応じて自動調整される */
-.hand--dealer .hand__card-wrapper [class*='card-info'] {
-  min-height: auto;
-  gap: 0;
-}
+/* Dealer card info - compact layout is now handled via CardInfo's isCompact prop */
+/* This ensures styles are applied from within the CardInfo component */
 
 /* ==================== */
 /* Animation Delays */
