@@ -76,6 +76,23 @@ describe('CardInfo', () => {
       expect(container.firstChild?.className).toContain('card-info--dimmed');
       expect(container.firstChild?.className).toContain('card-info--highlighted');
     });
+
+    it('applies compact class when isCompact is true', () => {
+      const { container } = render(<CardInfo color={0} fur={1} isCompact />);
+      expect(container.firstChild?.className).toContain('card-info--compact');
+    });
+
+    it('does not apply compact class by default', () => {
+      const { container } = render(<CardInfo color={0} fur={1} />);
+      expect(container.firstChild?.className).not.toContain('card-info--compact');
+    });
+
+    it('can apply compact with other state classes', () => {
+      const { container } = render(<CardInfo color={0} fur={1} isCompact isDimmed isHighlighted />);
+      expect(container.firstChild?.className).toContain('card-info--compact');
+      expect(container.firstChild?.className).toContain('card-info--dimmed');
+      expect(container.firstChild?.className).toContain('card-info--highlighted');
+    });
   });
 
   describe('Structure', () => {

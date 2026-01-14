@@ -11,6 +11,8 @@ export interface CardInfoProps {
   isDimmed?: boolean;
   /** Highlight state (for matching cards) */
   isHighlighted?: boolean;
+  /** Compact layout (for dealer cards) */
+  isCompact?: boolean;
   /** Additional class name */
   className?: string;
 }
@@ -27,6 +29,7 @@ export const CardInfo: React.FC<CardInfoProps> = ({
   fur,
   isDimmed = false,
   isHighlighted = false,
+  isCompact = false,
   className,
 }) => {
   const colorName = COLOR_NAMES[color];
@@ -36,6 +39,7 @@ export const CardInfo: React.FC<CardInfoProps> = ({
     styles['card-info'],
     isDimmed && styles['card-info--dimmed'],
     isHighlighted && styles['card-info--highlighted'],
+    isCompact && styles['card-info--compact'],
     className,
   ]
     .filter(Boolean)

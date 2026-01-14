@@ -61,3 +61,9 @@
 .card-info--highlighted .card-info__color {
   color: var(--color-primary, #d4a574);
 }
+
+/* Compact variant (for dealer cards) */
+.card-info--compact {
+  min-height: auto;
+  gap: 0;
+}

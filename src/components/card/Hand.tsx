@@ -182,6 +182,7 @@ export const Hand: React.FC<HandProps> = ({
                 fur={card.fur}
                 isDimmed={isNotMatching}
                 isHighlighted={isMatching}
+                isCompact={isDealer}
               />
             )}
           </div>

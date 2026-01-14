@@ -706,7 +706,7 @@ body {
 
 .dealer-area .card-wrapper .card-info {
   font-size: 15px;
-  min-height: 40px;
+  min-height: auto;
 }
 
 .dealer-area .card-wrapper .card-info .card-fur {

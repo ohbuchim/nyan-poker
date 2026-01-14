@@ -178,6 +178,22 @@ describe('Hand', () => {
 
       expect(screen.getByText('茶トラ')).toBeInTheDocument();
     });
+
+    it('applies compact style to card info when isDealer is true', () => {
+      const cards = createMockCards();
+      const { container } = render(<Hand cards={cards} isDealer showCards />);
+
+      const compactInfos = container.querySelectorAll('[class*="card-info--compact"]');
+      expect(compactInfos.length).toBe(5);
+    });
+
+    it('does not apply compact style to card info for player hand', () => {
+      const cards = createMockCards();
+      const { container } = render(<Hand cards={cards} showCards />);
+
+      const compactInfos = container.querySelectorAll('[class*="card-info--compact"]');
+      expect(compactInfos.length).toBe(0);
+    });
   });
 
   describe('Matching cards', () => {
