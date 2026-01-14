@@ -17,13 +17,16 @@ import {
 import type { RoleType } from '../types';
 import { useLocalStorage, STORAGE_KEYS } from '../hooks';
 
+/** 対戦結果の型 */
+export type BattleResult = 'win' | 'lose' | 'draw';
+
 /** StatsContext の値の型 */
 interface StatsContextValue {
   soloStats: SoloStats;
   battleStats: BattleStats;
   roleAchievements: RoleAchievements;
   updateSoloStats: (score: number) => void;
-  updateBattleStats: (won: boolean) => void;
+  updateBattleStats: (result: BattleResult) => void;
   incrementRoleAchievement: (roleType: RoleType) => void;
   resetStats: () => void;
 }
@@ -75,14 +78,14 @@ export function StatsProvider({ children }: StatsProviderProps) {
 
   /**
    * 対戦モード統計を更新する
-   * @param won - 勝利したかどうか
+   * @param result - 対戦結果（'win' | 'lose' | 'draw'）
    */
   const updateBattleStats = useCallback(
-    (won: boolean) => {
+    (result: BattleResult) => {
       setBattleStats((prev) => ({
         playCount: prev.playCount + 1,
-        wins: won ? prev.wins + 1 : prev.wins,
-        losses: won ? prev.losses : prev.losses + 1,
+        wins: result === 'win' ? prev.wins + 1 : prev.wins,
+        losses: result === 'lose' ? prev.losses + 1 : prev.losses,
       }));
     },
     [setBattleStats]
