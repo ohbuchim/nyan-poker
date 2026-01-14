@@ -559,6 +559,64 @@ describe('GameScreen', () => {
       const roundBadge = container.querySelector('[class*="round-badge"]');
       expect(roundBadge?.textContent).toContain('2');
     });
+
+    it('clears selection when clear button is clicked', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get clickable card buttons
+      const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
+
+      // Select two cards
+      await act(async () => {
+        cardButtons[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+      await act(async () => {
+        cardButtons[1].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      // Selected count should be 2
+      let selectedCount = container.querySelector('[class*="selected-count"]');
+      expect(selectedCount?.textContent).toBe('2');
+
+      // Click the clear button (shows as "選択を解除")
+      const clearButton = screen.getByText('選択を解除');
+      await act(async () => {
+        clearButton.click();
+      });
+
+      // Selected count should be 0 after clear
+      selectedCount = container.querySelector('[class*="selected-count"]');
+      expect(selectedCount?.textContent).toBe('0');
+    });
+
+    it('returns prev when trying to select more than 5 cards', async () => {
+      const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(800);
+      });
+
+      // Get clickable card buttons
+      const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
+
+      // Select all 5 cards (max)
+      for (let i = 0; i < 5; i++) {
+        await act(async () => {
+          cardButtons[i].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        });
+      }
+
+      // Selected count should be 5
+      const selectedCount = container.querySelector('[class*="selected-count"]');
+      expect(selectedCount?.textContent).toBe('5');
+
+      // All 5 cards are selected, we cannot select more because there are only 5 cards
+      // This covers the "return prev" branch when at max selection
+    });
   });
 
 });

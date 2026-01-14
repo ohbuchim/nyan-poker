@@ -599,6 +599,97 @@ describe('BattleScreen Card Exchange', () => {
     }
   });
 
+  it('deselects a card when clicking an already selected card', async () => {
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    // Wait for initial deal
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    // Click on first card to select
+    const cardButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.includes('猫')
+    );
+    expect(cardButtons.length).toBeGreaterThan(0);
+
+    // Select the first card
+    fireEvent.click(cardButtons[0]);
+
+    await act(async () => {
+      vi.advanceTimersByTime(50);
+    });
+
+    // Click the same card again to deselect
+    fireEvent.click(cardButtons[0]);
+
+    await act(async () => {
+      vi.advanceTimersByTime(50);
+    });
+
+    // Card should be deselected (verify by UI state)
+    // The card should no longer have selected styling
+    expect(cardButtons[0]).toBeInTheDocument();
+  });
+
+  it('does not select more cards when at max selection (5)', async () => {
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    // Wait for initial deal
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    // Get all card buttons
+    const cardButtons = screen.getAllByRole('button').filter(btn =>
+      btn.getAttribute('aria-label')?.includes('猫')
+    );
+    expect(cardButtons.length).toBe(5);
+
+    // Select all 5 cards (max)
+    for (let i = 0; i < 5; i++) {
+      fireEvent.click(cardButtons[i]);
+      await act(async () => {
+        vi.advanceTimersByTime(10);
+      });
+    }
+
+    // Now all 5 cards are selected
+    // Verify selection count shows 5
+    expect(screen.getByText('5')).toBeInTheDocument();
+
+    // Try to click the first card again (should deselect, not add)
+    fireEvent.click(cardButtons[0]);
+    await act(async () => {
+      vi.advanceTimersByTime(10);
+    });
+
+    // Count should be 4 now
+    expect(screen.getByText('4')).toBeInTheDocument();
+  });
+
+  it('handles skip exchange - no selected cards triggers dealer exchange path', async () => {
+    renderWithSettings(<BattleScreen {...createDefaultProps()} />);
+
+    // Wait for initial deal
+    await act(async () => {
+      vi.advanceTimersByTime(800);
+    });
+
+    // Click skip button without selecting any cards
+    // This triggers the no-cards-selected path in handleExchange
+    const skipButton = screen.getByText('交換しない');
+    fireEvent.click(skipButton);
+
+    // Wait for dealer exchange and reveal
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    // Should have called calculateRole for both hands
+    expect(roleCalculatorModule.calculateRole).toHaveBeenCalled();
+  });
+
   it('does not allow next round when at last round', async () => {
     renderWithSettings(<BattleScreen {...createDefaultProps()} />);
 

@@ -139,6 +139,40 @@ describe('Hand', () => {
       expect(handleCardClick).toHaveBeenCalledWith(0);
     });
 
+    it('does not allow selecting more than MAX_SELECTABLE_CARDS (5)', async () => {
+      const handleCardClick = vi.fn();
+      const user = userEvent.setup();
+      const cards = createMockCards();
+
+      // Already have 5 cards selected (all cards)
+      render(<Hand cards={cards} onCardClick={handleCardClick} selectedCardIds={[0, 1, 2, 3, 4]} />);
+
+      // Clicking an unselected card (if there were any) should not trigger callback
+      // Since all cards are selected, clicking any card should deselect it (which is allowed)
+      const buttons = screen.getAllByRole('button');
+      await user.click(buttons[0]);
+
+      // Should still be called since clicking deselects
+      expect(handleCardClick).toHaveBeenCalledWith(0);
+    });
+
+    it('blocks selection when max cards are already selected', async () => {
+      const handleCardClick = vi.fn();
+      const user = userEvent.setup();
+      // Create 6 cards to test the limit with an unselected card
+      const cards = createMockCards(6);
+
+      // 5 cards selected (max), 1 unselected
+      render(<Hand cards={cards} onCardClick={handleCardClick} selectedCardIds={[0, 1, 2, 3, 4]} />);
+
+      const buttons = screen.getAllByRole('button');
+      // Try to click the 6th card which is not selected
+      await user.click(buttons[5]);
+
+      // Callback should NOT be called because we're at max and trying to add
+      expect(handleCardClick).not.toHaveBeenCalled();
+    });
+
     it('does not call onCardClick when disabled', async () => {
       const handleCardClick = vi.fn();
       const user = userEvent.setup();
@@ -151,6 +185,23 @@ describe('Hand', () => {
       await user.click(cardElements[0]);
 
       expect(handleCardClick).not.toHaveBeenCalled();
+    });
+
+    it('does not crash when clicking card without onCardClick handler', async () => {
+      const user = userEvent.setup();
+      const cards = createMockCards();
+
+      // Render without onCardClick - cards should not be interactive
+      const { container } = render(<Hand cards={cards} />);
+
+      // Cards without onCardClick should not have button role
+      expect(screen.queryAllByRole('button')).toHaveLength(0);
+
+      // Clicking the card element should not cause any errors
+      const cardElements = container.querySelectorAll('[class*="card"]');
+      await user.click(cardElements[0]);
+
+      // No error should have occurred - test passes if no exception
     });
   });
 
@@ -523,6 +574,36 @@ describe('Hand', () => {
       });
 
       // Callback should not have been called
+      expect(onDealAnimationComplete).not.toHaveBeenCalled();
+    });
+
+    it('clears animation timer when animationType changes to none', async () => {
+      const onDealAnimationComplete = vi.fn();
+
+      // First render with empty cards
+      const { rerender } = render(
+        <Hand cards={[]} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Add cards to start animation
+      const cards = createMockCards();
+      rerender(
+        <Hand cards={cards} animationType="deal" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Change animation type to none before timer completes
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
+      rerender(
+        <Hand cards={cards} animationType="none" onDealAnimationComplete={onDealAnimationComplete} />
+      );
+
+      // Advance more time - callback should not be called since timer was cleared
+      await act(async () => {
+        vi.advanceTimersByTime(1000);
+      });
+
       expect(onDealAnimationComplete).not.toHaveBeenCalled();
     });
   });

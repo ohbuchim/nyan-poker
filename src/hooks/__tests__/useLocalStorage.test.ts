@@ -128,6 +128,88 @@ describe('useLocalStorage', () => {
       expect(success).toBe(true);
     });
 
+    it('returns false and logs error when localStorage throws', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      // Save original method
+      const originalRemoveItem = localStorage.removeItem.bind(localStorage);
+
+      // Override with throwing implementation
+      Object.defineProperty(localStorage, 'removeItem', {
+        value: () => {
+          throw new Error('Storage error');
+        },
+        configurable: true,
+        writable: true,
+      });
+
+      const success = removeItem('test-key');
+      expect(success).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to remove from localStorage (key: test-key):',
+        expect.any(Error)
+      );
+
+      // Restore original
+      Object.defineProperty(localStorage, 'removeItem', {
+        value: originalRemoveItem,
+        configurable: true,
+        writable: true,
+      });
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('setItem error handling', () => {
+    it('returns false and logs error when localStorage.setItem throws', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      // Save original method
+      const originalSetItem = localStorage.setItem.bind(localStorage);
+
+      // Override with throwing implementation
+      Object.defineProperty(localStorage, 'setItem', {
+        value: () => {
+          throw new Error('QuotaExceededError');
+        },
+        configurable: true,
+        writable: true,
+      });
+
+      const success = setItem('test-key', { data: 'test' });
+      expect(success).toBe(false);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to write to localStorage (key: test-key):',
+        expect.any(Error)
+      );
+
+      // Restore original
+      Object.defineProperty(localStorage, 'setItem', {
+        value: originalSetItem,
+        configurable: true,
+        writable: true,
+      });
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('migration', () => {
+    it('attempts migration for old version and returns null on failure', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      // Store data with old version (0)
+      localStorage.setItem(
+        'test-key',
+        JSON.stringify({ version: 0, data: { oldData: true } })
+      );
+
+      const result = getItem<{ oldData: boolean }>('test-key');
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Cannot migrate data from version 0 to 1'
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('useLocalStorage hook', () => {

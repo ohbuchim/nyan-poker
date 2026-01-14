@@ -500,5 +500,28 @@ describe('BattleResultOverlay', () => {
       );
       expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
     });
+
+    it('紙吹雪が完了後に非表示になる（handleConfettiCompleteが呼ばれる）', async () => {
+      const onClose = vi.fn();
+      render(
+        <BattleResultOverlay
+          visible={true}
+          result="win"
+          playerRole={createRole('サビフラッシュ', 300)}
+          dealerRole={createRole('ワンペア', 5)}
+          pointsChange={300}
+          onClose={onClose}
+        />
+      );
+
+      // Confetti should be visible initially
+      expect(screen.getByTestId('confetti-canvas')).toBeInTheDocument();
+
+      // Wait for confetti duration to complete (default is 5000ms)
+      await vi.advanceTimersByTimeAsync(5100);
+
+      // After confetti completes, the canvas should be removed
+      expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
+    });
   });
 });
