@@ -42,6 +42,21 @@
 }
 
 /* ==================== */
+/* Compact Variant (Dealer Cards) */
+/* ==================== */
+
+/* Compact variant - 80% size for dealer cards */
+.card--compact {
+  width: var(--dealer-card-width, 64px);
+  height: var(--dealer-card-height, 86px);
+}
+
+/* Compact cards don't hover/scale */
+.card--compact:hover {
+  transform: none;
+}
+
+/* ==================== */
 /* Selected State */
 /* ==================== */
 
