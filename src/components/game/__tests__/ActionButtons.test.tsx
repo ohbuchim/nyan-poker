@@ -43,7 +43,7 @@ describe('ActionButtons', () => {
     });
 
     it('shows selected count', () => {
-      render(<ActionButtons {...defaultProps} selectedCount={2} maxSelectable={3} />);
+      render(<ActionButtons {...defaultProps} selectedCount={2} maxSelectable={5} />);
 
       expect(screen.getByText('2')).toBeInTheDocument();
       // Text is split across elements, so check for partial match

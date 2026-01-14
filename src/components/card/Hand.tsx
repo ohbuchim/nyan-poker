@@ -40,7 +40,7 @@ export interface HandProps {
  *
  * Features:
  * - Displays 5 cards in a row
- * - Manages card selection (max 3 cards for exchange)
+ * - Manages card selection (max 5 cards for exchange - all cards can be exchanged)
  * - Shows card info below each card
  * - Supports dealer hand variant (smaller cards, no interaction)
  * - Responsive layout

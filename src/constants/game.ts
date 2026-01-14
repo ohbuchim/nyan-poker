@@ -15,9 +15,9 @@ export const HAND_SIZE = 5;
 
 /**
  * 交換可能なカードの最大枚数
- * 1回の交換で最大3枚まで選択可能
+ * 1回の交換で最大5枚（手札全部）まで選択可能
  */
-export const MAX_SELECTABLE_CARDS = 3;
+export const MAX_SELECTABLE_CARDS = 5;
 
 /**
  * カードの総数

@@ -21,8 +21,8 @@ describe('Game constants', () => {
       expect(HAND_SIZE).toBe(5);
     });
 
-    it('MAX_SELECTABLE_CARDSは3枚である', () => {
-      expect(MAX_SELECTABLE_CARDS).toBe(3);
+    it('MAX_SELECTABLE_CARDSは5枚（手札全部）である', () => {
+      expect(MAX_SELECTABLE_CARDS).toBe(5);
     });
   });
 
