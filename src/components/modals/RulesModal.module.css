@@ -31,16 +31,20 @@
   align-items: center;
   padding: var(--space-4, 16px);
   cursor: pointer;
-  list-style: none;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
   transition: background var(--transition-fast, 0.2s);
-}
-
-.rulesAccordionHeader::-webkit-details-marker {
-  display: none;
 }
 
 .rulesAccordionHeader:hover {
   background: var(--color-bg-light, #3d3a35);
+}
+
+.rulesAccordionHeader:focus {
+  outline: 2px solid var(--color-primary, #d4a574);
+  outline-offset: -2px;
 }
 
 .accordionTitle {
@@ -81,13 +85,18 @@
   transition: transform var(--transition-fast, 0.2s), opacity var(--transition-fast, 0.2s);
 }
 
-.rulesAccordion[open] .accordionIcon::after {
+.accordionIconOpen::after {
   transform: rotate(90deg);
   opacity: 0;
 }
 
 .rulesAccordionContent {
   padding: 0 var(--space-4, 16px) var(--space-4, 16px);
+  display: none;
+}
+
+.rulesAccordionContentOpen {
+  display: block;
 }
 
 /* Role Table */
