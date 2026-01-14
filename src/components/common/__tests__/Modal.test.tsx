@@ -261,5 +261,50 @@ describe('Modal', () => {
       await user.tab();
       expect(closeButton).toHaveFocus();
     });
+
+    it('wraps focus to last element when shift+tab on first element', async () => {
+      const user = userEvent.setup();
+
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} title="Test">
+          <button>First</button>
+          <button>Second</button>
+        </Modal>
+      );
+
+      const closeButton = screen.getByRole('button', { name: '閉じる' });
+      const secondButton = screen.getByRole('button', { name: 'Second' });
+
+      // Close button should be focused initially
+      expect(closeButton).toHaveFocus();
+
+      // Shift+Tab should wrap to last element (Second button)
+      await user.tab({ shift: true });
+      expect(secondButton).toHaveFocus();
+    });
+
+    it('focuses first focusable element when no close button and modal opens', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} showCloseButton={false}>
+          <button>First Action</button>
+          <button>Second Action</button>
+        </Modal>
+      );
+
+      // First focusable element should be focused
+      const firstButton = screen.getByRole('button', { name: 'First Action' });
+      expect(firstButton).toHaveFocus();
+    });
+
+    it('handles modal with no focusable elements', () => {
+      render(
+        <Modal isOpen={true} onClose={vi.fn()} showCloseButton={false}>
+          <p>No focusable elements here</p>
+        </Modal>
+      );
+
+      // Should not throw and modal should be rendered
+      expect(screen.getByText('No focusable elements here')).toBeInTheDocument();
+    });
   });
 });

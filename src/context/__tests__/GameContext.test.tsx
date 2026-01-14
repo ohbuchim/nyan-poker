@@ -360,6 +360,55 @@ describe('GameContext', () => {
       expect(result.current.state.roundHistory.length).toBe(1);
       expect(result.current.state.roundHistory[0].result).toBe('win');
     });
+
+    it('対戦モードでプレイヤーが負けた場合のスコア計算', () => {
+      // プレイヤー: ノーペア（0pt）
+      const playerHandNoPair: Card[] = [
+        createTestCard(0, 0, 1),
+        createTestCard(1, 1, 1),
+        createTestCard(2, 2, 1),
+        createTestCard(3, 3, 1),
+        createTestCard(4, 4, 1),
+      ];
+
+      // ディーラー: 茶白2枚（ワンペア: 5pt）
+      const dealerHandWithPair: Card[] = [
+        createTestCard(5, 5, 1),
+        createTestCard(6, 5, 1),
+        createTestCard(7, 6, 1),
+        createTestCard(8, 7, 1),
+        createTestCard(9, 8, 1),
+      ];
+
+      vi.mocked(deckModule.drawCards)
+        .mockReturnValueOnce(playerHandNoPair)
+        .mockReturnValueOnce(dealerHandWithPair)
+        .mockReturnValue(playerHandNoPair);
+
+      const { result } = renderHook(() => useGame(), { wrapper });
+
+      act(() => {
+        result.current.startGame('battle');
+      });
+
+      act(() => {
+        result.current.skipExchange();
+      });
+
+      act(() => {
+        result.current.nextRound();
+      });
+
+      // ラウンド履歴に敗北が記録される
+      expect(result.current.state.roundHistory.length).toBe(1);
+      expect(result.current.state.roundHistory[0].result).toBe('lose');
+
+      // プレイヤーのスコアがマイナスになる（ディーラーの役ポイント分を失う）
+      expect(result.current.state.playerScore).toBeLessThan(0);
+
+      // ディーラーのスコアがプラスになる
+      expect(result.current.state.dealerScore).toBeGreaterThan(0);
+    });
   });
 
   describe('finishGame', () => {

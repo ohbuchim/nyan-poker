@@ -352,6 +352,33 @@ describe('Confetti', () => {
       expect(cancelAnimationFrameSpy).toHaveBeenCalled();
       cancelAnimationFrameSpy.mockRestore();
     });
+
+    it('clears particles and animation when active becomes false while animation is running', async () => {
+      const cancelAnimationFrameSpy = vi.spyOn(
+        window,
+        'cancelAnimationFrame'
+      );
+
+      const { rerender } = render(<Confetti active={true} duration={5000} particleCount={50} />);
+
+      // Let animation start and create particles
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+
+      // Deactivate - this should trigger the cleanup code path
+      await act(async () => {
+        rerender(<Confetti active={false} duration={5000} particleCount={50} />);
+      });
+
+      // cancelAnimationFrame should have been called
+      expect(cancelAnimationFrameSpy).toHaveBeenCalled();
+
+      // Canvas should be removed
+      expect(screen.queryByTestId('confetti-canvas')).not.toBeInTheDocument();
+
+      cancelAnimationFrameSpy.mockRestore();
+    });
   });
 
   describe('canvas context', () => {
