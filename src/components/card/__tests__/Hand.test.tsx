@@ -194,6 +194,22 @@ describe('Hand', () => {
       const compactInfos = container.querySelectorAll('[class*="card-info--compact"]');
       expect(compactInfos.length).toBe(0);
     });
+
+    it('applies compact style to cards when isDealer is true', () => {
+      const cards = createMockCards();
+      const { container } = render(<Hand cards={cards} isDealer showCards />);
+
+      const compactCards = container.querySelectorAll('[class*="card--compact"]');
+      expect(compactCards.length).toBe(5);
+    });
+
+    it('does not apply compact style to cards for player hand', () => {
+      const cards = createMockCards();
+      const { container } = render(<Hand cards={cards} showCards />);
+
+      const compactCards = container.querySelectorAll('[class*="card--compact"]');
+      expect(compactCards.length).toBe(0);
+    });
   });
 
   describe('Matching cards', () => {

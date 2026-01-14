@@ -43,18 +43,11 @@
   gap: calc(var(--card-gap, 8px) * 0.8);
 }
 
-/* Dealer cards are 80% size - use CSS variables set in variables.css */
-.hand--dealer .hand__card-wrapper [class*='card'] {
-  width: var(--dealer-card-width, 64px);
-  height: var(--dealer-card-height, 86px);
-}
+/* Dealer card sizing and hover are now handled via Card's isCompact prop */
+/* This ensures styles are applied from within the Card component */
+/* See Card.module.css .card--compact for the actual styles */
 
-/* Dealer cards don't hover */
-.hand--dealer .hand__card-wrapper [class*='card']:hover {
-  transform: none;
-}
-
-/* Dealer card info - compact layout is now handled via CardInfo's isCompact prop */
+/* Dealer card info - compact layout is handled via CardInfo's isCompact prop */
 /* This ensures styles are applied from within the CardInfo component */
 
 /* ==================== */

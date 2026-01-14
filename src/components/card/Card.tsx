@@ -25,6 +25,8 @@ export interface CardProps {
   onClick?: () => void;
   /** Disable card interactions */
   disabled?: boolean;
+  /** Compact layout (for dealer cards - 80% size) */
+  isCompact?: boolean;
   /** Additional class name */
   className?: string;
   /** Custom aria-label override */
@@ -51,6 +53,7 @@ export const Card: React.FC<CardProps> = ({
   animationDelay = 0,
   onClick,
   disabled = false,
+  isCompact = false,
   className,
   'aria-label': ariaLabelProp,
 }) => {
@@ -78,6 +81,7 @@ export const Card: React.FC<CardProps> = ({
     isNotMatching && styles['card--not-matching'],
     animationType !== 'none' && styles[`card--${animationType}`],
     disabled && styles['card--disabled'],
+    isCompact && styles['card--compact'],
     onClick && !disabled && styles['card--clickable'],
     className,
   ]

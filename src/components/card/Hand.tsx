@@ -175,6 +175,7 @@ export const Hand: React.FC<HandProps> = ({
               animationDelay={animationDelay}
               onClick={isInteractive ? () => handleCardClick(card.id) : undefined}
               disabled={disabled || isDealer}
+              isCompact={isDealer}
             />
             {showCards && (
               <CardInfo

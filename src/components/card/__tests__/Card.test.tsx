@@ -108,6 +108,22 @@ describe('Card', () => {
       const cardElement = container.firstChild;
       expect(cardElement?.className).not.toContain('card--clickable');
     });
+
+    it('applies compact class when isCompact is true', () => {
+      const card = createMockCard();
+      const { container } = render(<Card card={card} isCompact />);
+
+      const cardElement = container.firstChild;
+      expect(cardElement?.className).toContain('card--compact');
+    });
+
+    it('does not apply compact class when isCompact is false', () => {
+      const card = createMockCard();
+      const { container } = render(<Card card={card} isCompact={false} />);
+
+      const cardElement = container.firstChild;
+      expect(cardElement?.className).not.toContain('card--compact');
+    });
   });
 
   describe('Animations', () => {
