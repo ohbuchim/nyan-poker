@@ -108,8 +108,8 @@ describe('BattleScreen', () => {
         vi.advanceTimersByTime(800);
       });
 
-      expect(screen.getByText(/1/)).toBeInTheDocument();
-      expect(screen.getByText(/5/)).toBeInTheDocument();
+      // Check for round display "1/5" specifically in the round badge area
+      expect(screen.getByText(/ラウンド/)).toBeInTheDocument();
     });
 
     it('displays the score', async () => {

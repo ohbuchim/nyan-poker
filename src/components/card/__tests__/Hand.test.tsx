@@ -112,17 +112,18 @@ describe('Hand', () => {
       expect(handleCardClick).toHaveBeenCalledWith(0);
     });
 
-    it('allows selecting up to 3 cards', async () => {
+    it('allows selecting up to 5 cards (all cards)', async () => {
       const handleCardClick = vi.fn();
       const user = userEvent.setup();
       const cards = createMockCards();
 
-      render(<Hand cards={cards} onCardClick={handleCardClick} selectedCardIds={[0, 1, 2]} />);
+      render(<Hand cards={cards} onCardClick={handleCardClick} selectedCardIds={[0, 1, 2, 3, 4]} />);
 
+      // All 5 cards are already selected, clicking any card should deselect it
       const buttons = screen.getAllByRole('button');
-      await user.click(buttons[3]); // Try to select 4th card
+      await user.click(buttons[0]); // Click an already selected card to deselect
 
-      expect(handleCardClick).not.toHaveBeenCalled();
+      expect(handleCardClick).toHaveBeenCalledWith(0);
     });
 
     it('allows deselecting when at max selection', async () => {

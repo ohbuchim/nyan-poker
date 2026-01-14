@@ -448,7 +448,7 @@ describe('GameScreen', () => {
       expect(screen.getByText('OnePair')).toBeInTheDocument();
     });
 
-    it('limits card selection to maximum allowed', async () => {
+    it('limits card selection to maximum allowed (5 cards)', async () => {
       const { container } = renderWithSettings(<GameScreen {...defaultProps} />);
 
       await act(async () => {
@@ -458,16 +458,16 @@ describe('GameScreen', () => {
       // Get clickable card buttons
       const cardButtons = container.querySelectorAll('[role="button"][class*="card"]');
 
-      // Click 4 cards (more than max of 3)
-      for (let i = 0; i < 4; i++) {
+      // Click all 5 cards (max is now 5)
+      for (let i = 0; i < 5; i++) {
         await act(async () => {
           cardButtons[i].dispatchEvent(new MouseEvent('click', { bubbles: true }));
         });
       }
 
-      // Selected count should be limited to 3
+      // Selected count should be 5 (all cards can be selected)
       const selectedCount = container.querySelector('[class*="selected-count"]');
-      expect(selectedCount?.textContent).toBe('3');
+      expect(selectedCount?.textContent).toBe('5');
     });
 
     it('toggles card selection when clicking same card twice', async () => {

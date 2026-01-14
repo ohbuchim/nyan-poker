@@ -19,7 +19,7 @@ export interface ActionButtonsProps {
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   selectedCount,
-  maxSelectable = 3,
+  maxSelectable = 5,
   exchanged,
   isRevealing,
   isLastRound,
