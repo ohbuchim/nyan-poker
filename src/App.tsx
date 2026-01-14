@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { TitleScreen, GameScreen, BattleScreen, ResultScreen } from './pages';
 import { RulesModal, StatsModal, SettingsModal } from './components/modals';
+import { useStats } from './context/StatsContext';
 import type { RoundHistory, GameMode } from './types';
 import './App.css';
 
@@ -20,6 +21,8 @@ function App() {
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  const { updateSoloStats, updateBattleStats, incrementRoleAchievement } = useStats();
 
   const handleStartSolo = useCallback(() => {
     setCurrentMode('solo');
@@ -41,8 +44,40 @@ function App() {
         mode: currentMode,
       });
       setCurrentScreen('result');
+
+      // 戦績を更新
+      if (currentMode === 'solo') {
+        // ひとりモード: スコアを記録
+        updateSoloStats(finalScore);
+      } else {
+        // 対戦モード: 勝敗数を集計して結果を記録
+        const battleResults = history.reduce(
+          (acc, round) => {
+            if (round.result === 'win') acc.wins++;
+            else if (round.result === 'lose') acc.losses++;
+            return acc;
+          },
+          { wins: 0, losses: 0 }
+        );
+
+        // 最終的な勝敗を判定
+        if (battleResults.wins > battleResults.losses) {
+          updateBattleStats('win');
+        } else if (battleResults.losses > battleResults.wins) {
+          updateBattleStats('lose');
+        } else {
+          updateBattleStats('draw');
+        }
+      }
+
+      // 役達成回数を記録（両モード共通）
+      history.forEach((round) => {
+        if (round.playerRole) {
+          incrementRoleAchievement(round.playerRole.type);
+        }
+      });
     },
-    [currentMode]
+    [currentMode, updateSoloStats, updateBattleStats, incrementRoleAchievement]
   );
 
   const handlePlayAgain = useCallback(() => {

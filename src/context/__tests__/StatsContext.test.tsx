@@ -141,7 +141,7 @@ describe('StatsContext', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        result.current.updateBattleStats(true);
+        result.current.updateBattleStats('win');
       });
 
       expect(result.current.battleStats.playCount).toBe(1);
@@ -153,7 +153,7 @@ describe('StatsContext', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        result.current.updateBattleStats(false);
+        result.current.updateBattleStats('lose');
       });
 
       expect(result.current.battleStats.playCount).toBe(1);
@@ -161,22 +161,38 @@ describe('StatsContext', () => {
       expect(result.current.battleStats.losses).toBe(1);
     });
 
+    it('引き分けを記録できる', () => {
+      const { result } = renderHook(() => useStats(), { wrapper });
+
+      act(() => {
+        result.current.updateBattleStats('draw');
+      });
+
+      expect(result.current.battleStats.playCount).toBe(1);
+      expect(result.current.battleStats.wins).toBe(0);
+      expect(result.current.battleStats.losses).toBe(0);
+    });
+
     it('複数回の対戦で統計が累積される', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        result.current.updateBattleStats(true); // 勝利
+        result.current.updateBattleStats('win'); // 勝利
       });
 
       act(() => {
-        result.current.updateBattleStats(true); // 勝利
+        result.current.updateBattleStats('win'); // 勝利
       });
 
       act(() => {
-        result.current.updateBattleStats(false); // 敗北
+        result.current.updateBattleStats('lose'); // 敗北
       });
 
-      expect(result.current.battleStats.playCount).toBe(3);
+      act(() => {
+        result.current.updateBattleStats('draw'); // 引き分け
+      });
+
+      expect(result.current.battleStats.playCount).toBe(4);
       expect(result.current.battleStats.wins).toBe(2);
       expect(result.current.battleStats.losses).toBe(1);
     });
@@ -185,7 +201,7 @@ describe('StatsContext', () => {
       const { result } = renderHook(() => useStats(), { wrapper });
 
       act(() => {
-        result.current.updateBattleStats(true);
+        result.current.updateBattleStats('win');
       });
 
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.BATTLE_STATS) || '{}');
@@ -262,7 +278,7 @@ describe('StatsContext', () => {
       // 統計を追加
       act(() => {
         result.current.updateSoloStats(100);
-        result.current.updateBattleStats(true);
+        result.current.updateBattleStats('win');
         result.current.incrementRoleAchievement('flush');
       });
 
@@ -296,7 +312,7 @@ describe('StatsContext', () => {
 
       act(() => {
         result.current.updateSoloStats(100);
-        result.current.updateBattleStats(true);
+        result.current.updateBattleStats('win');
         result.current.incrementRoleAchievement('flush');
       });
 
@@ -333,7 +349,7 @@ describe('StatsContext', () => {
 
       act(() => {
         result.current.updateSoloStats(100);
-        result.current.updateBattleStats(true);
+        result.current.updateBattleStats('win');
         result.current.incrementRoleAchievement('flush');
       });
 
