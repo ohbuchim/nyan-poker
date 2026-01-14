@@ -69,6 +69,7 @@ export function useSound() {
       const sound = new Howl({
         src: [SOUND_PATHS[name]],
         preload: true,
+        html5: true, // HTML5 Audioを使用（Web Audio APIのデコード問題を回避）
         onloaderror: (_id, error) => {
           console.warn(`Failed to load sound ${name}:`, error);
           soundsRef.current[name] = null;
