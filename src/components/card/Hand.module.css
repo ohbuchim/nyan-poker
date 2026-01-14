@@ -55,30 +55,10 @@
 }
 
 /* Dealer card info - same font size as player, compact layout */
+/* min-height: auto により、コンテンツに応じて自動調整される */
 .hand--dealer .hand__card-wrapper [class*='card-info'] {
-  min-height: 28px;
+  min-height: auto;
   gap: 0;
-}
-
-/* スマートフォン (767px以下) */
-@media (max-width: 767px) {
-  .hand--dealer .hand__card-wrapper [class*='card-info'] {
-    min-height: 20px;
-  }
-}
-
-/* タブレット (768px以上) */
-@media (min-width: 768px) {
-  .hand--dealer .hand__card-wrapper [class*='card-info'] {
-    min-height: 24px;
-  }
-}
-
-/* PC (1024px以上) */
-@media (min-width: 1024px) {
-  .hand--dealer .hand__card-wrapper [class*='card-info'] {
-    min-height: 28px;
-  }
 }
 
 /* ==================== */
