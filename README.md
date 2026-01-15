@@ -132,8 +132,10 @@ nyan-poker/
 │   │   ...
 │   ├── image_228.jpg
 │   └── map.yml           # カード属性定義
-├── sounds/               # 効果音
 ├── mock/                 # UIモック
+├── public/
+│   └── sounds/           # 効果音
+├── scripts/              # ビルドスクリプト
 ├── src/
 │   ├── components/       # Reactコンポーネント
 │   │   ├── card/         # カード関連
@@ -149,6 +151,7 @@ nyan-poker/
 │   ├── styles/           # 共通スタイル
 │   ├── types/            # TypeScript型定義
 │   └── utils/            # ユーティリティ
+├── index.html            # エントリーポイント
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
